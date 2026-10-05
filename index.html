@@ -304,14 +304,28 @@ body.mob .pb-notes{grid-template-columns:1fr}
 body.mob .pb-notes > div,body.mob .pb-note1{font-size:15.5px;line-height:24px;padding:10px 14px}
 body.mob .pb-notes .lab,body.mob .pb-note1 .lab{font-size:14px;margin-bottom:2px}
 body.mob .pb-form .foot{margin-top:10px}
-body.mob #hud{left:0;right:0;bottom:0;border-radius:0;justify-content:center;gap:12px;opacity:1;background:var(--navy);padding:5px 8px calc(5px + env(safe-area-inset-bottom))}
-body.mob #hud button{width:44px;height:34px;font-size:18px}
+/* 手機：操作列加大；「放大」模式讓投影片放大後可用手指拖曳 */
+#b-zoom{display:none}
+body.nofs #b-full{display:none}
+body.phone #hud{opacity:.94}
+body.phone #hud button{width:42px;height:36px;font-size:18px}
+body.phone #pg{font-size:15px}
+body.phone #hud #b-zoom{display:block;width:auto;padding:0 12px;font-size:15px;font-weight:700;background:var(--orange);color:#fff}
+body.phone #hud #b-zoom[aria-pressed=true]{background:#F5F2EC;color:var(--navy)}
+body.phone.mob.onix #hud #b-zoom{display:none}  /* 直式的互動頁本來就是手機版面，不需要放大 */
+body.zoom #deck{overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+body.zoom:not(.mob) .s.on,body.zoom.mob .s.on:not(.ix){left:var(--zl);top:var(--zt);margin:0;transform-origin:0 0;transform:scale(var(--zs))}
+body.zoom #deck::before{display:none}
+/* 橫放放大時，在投影片下方多留一段可捲動的空間，最後一列才不會被操作列擋住 */
+body.zoom:not(.mob) #deck::after{content:'';position:absolute;left:0;top:calc(720px*var(--zs) + var(--zt));width:1px;height:56px}
+body.mob #hud{left:0;right:0;bottom:0;border-radius:0;justify-content:center;gap:4px;opacity:1;background:var(--navy);padding:5px 8px calc(5px + env(safe-area-inset-bottom))}
+body.mob #hud button{width:36px;height:36px;font-size:18px}
 body.mob #pg{font-size:15px}
 body.mob #bar{bottom:auto;top:0}
 body.mob #toast{bottom:112px}
 body.mob .mk-bar{display:block}
 body.mob .mk-bar > * + *{margin-top:10px}
-body.mob #deck::before{content:'📱 手機橫放可放大投影片；標示「互動」的演練頁可直式操作';position:absolute;left:16px;right:16px;top:calc(50% + 28.2vw + 18px);text-align:center;color:#8f9bb0;font-size:13.5px;line-height:1.6}
+body.mob #deck::before{content:'按下方的「放大」可放大投影片，放大後用手指拖曳；標示「互動」的演練頁可直接操作';position:absolute;left:16px;right:16px;top:calc(50% + 28.2vw + 18px);text-align:center;color:#8f9bb0;font-size:13.5px;line-height:1.6}
 @media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{overflow:visible;height:auto;background:#fff}#hud,#bar,#toc,#qr,#toast{display:none!important}
   #deck{position:static}.s{display:block!important;position:relative;left:auto;top:auto;margin:0;transform:none;page-break-after:always}
   @page{size:1280px 720px;margin:0}}
@@ -711,6 +725,7 @@ body.mob #deck::before{content:'📱 手機橫放可放大投影片；標示「�
   <span id="pg" title="輸入頁碼跳頁（G）"></span>
   <button id="b-next" title="下一頁（→）" aria-label="下一頁">›</button>
   <button id="b-grid" title="總覽（O）" aria-label="總覽">▦</button>
+  <button id="b-zoom" title="放大投影片，放大後用手指拖曳" aria-pressed="false">放大</button>
   <button id="b-full" title="全螢幕（F）" aria-label="全螢幕">⛶</button>
 </nav>
 <aside id="toc"><div class="panel"><header><b>目錄</b><input id="toc-q" type="search" placeholder="搜尋標題…" aria-label="搜尋標題"><button class="x" aria-label="關閉">×</button></header><ol></ol></div></aside>
@@ -736,13 +751,39 @@ if(/^https?:$/.test(location.protocol)) document.body.classList.add('web');
 
 /* ── 版面縮放 ── */
 function layout(){
-  const w=innerWidth,h=innerHeight;
-  document.documentElement.style.setProperty('--sc',Math.min(w/1280,h/720));
-  document.body.classList.toggle('mob',w<760&&h>w);
+  const w=innerWidth,h=innerHeight,b=document.body,root=document.documentElement.style;
+  laidW=w;laidH=h;
+  const fitS=Math.min(w/1280,h/720);
+  root.setProperty('--sc',fitS);
+  b.classList.toggle('mob',w<760&&h>w);
+  // 手機（觸控、短邊小於 600px）：提供「放大」模式，因為 iPhone 的瀏覽器不支援網頁全螢幕
+  const touch=navigator.maxTouchPoints>0||(window.matchMedia&&matchMedia('(pointer:coarse)').matches);
+  const phone=touch&&Math.min(w,h)<600;
+  b.classList.toggle('phone',phone);
+  if(!phone&&b.classList.contains('zoom'))zoom(false);
+  // 放大倍率：把螢幕較長的那一邊填滿（另一邊用手指拖曳），最多放大到 2.6 倍；比例接近 16:9 時至少放大 1.6 倍
+  const bar=b.classList.contains('mob')?48:0;
+  let z=Math.min(Math.max(w/1280,(h-bar)/720),fitS*2.6);
+  if(z<fitS*1.15)z=fitS*1.6;
+  root.setProperty('--zs',z);
+  root.setProperty('--zl',Math.max(0,(w-1280*z)/2)+'px');
+  root.setProperty('--zt',Math.max(0,(h-bar-720*z)/2)+'px');
   const cols=+new URLSearchParams(location.search).get('cols')||(w<700?2:4);
-  document.documentElement.style.setProperty('--gz',Math.max(.1,(Math.min(w,1800)-14*2-10*(cols-1))/cols/1280-.001));
+  root.setProperty('--gz',Math.max(.1,(Math.min(w,1800)-14*2-10*(cols-1))/cols/1280-.001));
 }
-addEventListener('resize',layout);layout();
+// 手機旋轉時，有些瀏覽器在 resize 事件當下還拿不到新的視窗尺寸，所以隔一下再量兩次
+let layT=[],laidW=0,laidH=0;
+function relayout(){layout();layT.forEach(clearTimeout);layT=[150,500].map(ms=>setTimeout(layout,ms));}
+addEventListener('resize',relayout);addEventListener('orientationchange',relayout);
+if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(visualViewport.scale<1.01)relayout();});
+// 保險：有些手機瀏覽器（或 App 內建瀏覽器）旋轉後不會送出 resize 事件，所以定時比對視窗尺寸
+setInterval(()=>{if(innerWidth!==laidW||innerHeight!==laidH)layout();},400);
+function zoom(on){
+  const b=document.body;on=on===undefined?!b.classList.contains('zoom'):on;
+  b.classList.toggle('zoom',on);deck.scrollTo(0,0);
+  const btn=$('#b-zoom');if(btn){btn.setAttribute('aria-pressed',on);btn.textContent=on?'還原':'放大';}
+}
+layout();
 
 /* ── 自動排版：把字放到排得下的最大，文字長高時把下方內容往下推 ──
    build.py 已把每頁垂直切成「帶」(data-bands)，並標出每個文字框往下可用的高度 (data-c)。
@@ -845,6 +886,8 @@ function go(i,noHash){
   i=Math.max(0,Math.min(N-1,i));
   S[cur].classList.remove('on');cur=i;S[cur].classList.add('on');
   fit(S[cur]);
+  document.body.classList.toggle('onix',S[cur].classList.contains('ix'));
+  if(document.body.classList.contains('zoom'))deck.scrollTo(0,0);
   $('#pg').textContent=(cur+1)+' / '+N;
   $('#bar').style.width=((cur+1)/N*100)+'%';
   if(!noHash)history.replaceState(null,'','#'+(cur+1));
@@ -853,9 +896,14 @@ function go(i,noHash){
 }
 const next=()=>go(cur+1), prev=()=>go(cur-1);
 $('#b-next').onclick=next;$('#b-prev').onclick=prev;
-$('#b-full').onclick=full;$('#b-grid').onclick=()=>grid();$('#b-toc').onclick=()=>toc(true);
+$('#b-full').onclick=full;$('#b-zoom').onclick=()=>zoom();$('#b-grid').onclick=()=>grid();$('#b-toc').onclick=()=>toc(true);
 $('#pg').onclick=jump;
-function full(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}
+const fsEl=document.documentElement,fsReq=fsEl.requestFullscreen||fsEl.webkitRequestFullscreen;
+if(!fsReq)document.body.classList.add('nofs');  // iPhone 的瀏覽器不支援網頁全螢幕：隱藏按鈕，改用「放大」
+function full(){
+  if(document.fullscreenElement||document.webkitFullscreenElement)(document.exitFullscreen||document.webkitExitFullscreen).call(document);
+  else if(fsReq){const p=fsReq.call(fsEl);if(p&&p.catch)p.catch(()=>toast('這個瀏覽器不允許全螢幕'));}
+}
 function jump(){const v=prompt('跳到第幾頁？（1–'+N+'）',cur+1);if(v&&+v)go(+v-1);}
 
 /* ── 總覽 ── */
@@ -907,6 +955,7 @@ let t0=null;
 addEventListener('touchstart',e=>{t0=e.touches.length===1?{x:e.touches[0].clientX,y:e.touches[0].clientY,ix:!!e.target.closest('.tok,button,input,.promptbox')}:null;},{passive:true});
 addEventListener('touchend',e=>{
   if(!t0||document.body.classList.contains('grid')||tocEl.classList.contains('on'))return;
+  if(document.body.classList.contains('zoom')||(window.visualViewport&&visualViewport.scale>1.05)){t0=null;return;}
   const dx=e.changedTouches[0].clientX-t0.x,dy=e.changedTouches[0].clientY-t0.y;
   if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*2&&!t0.ix)dx<0?next():prev();
   t0=null;
