@@ -6,6 +6,13 @@
 - `index.html`：成品，單一檔案，可直接用瀏覽器開啟（離線可用）。
 - 桌面課程資料夾另有一份相同內容的 `金屬扣件智慧製造與AI生產優化實務班_網頁簡報.html`。
 
+## 分享素材
+
+- `share/分享卡.png`（1920×1080）、`share/QRcode.png`：掃碼開啟線上簡報。分享卡由 `tools/share-card.html` 截圖而成。
+- `share/簡報.pdf`：123 頁 PDF（不放進 repo）。重新產生：
+  `chrome --headless --no-pdf-header-footer --virtual-time-budget=25000 --print-to-pdf=簡報.pdf "file:///…/index.html?print=1"`
+  也可以直接在瀏覽器按 Ctrl+P 另存 PDF（版面已設定成一頁一張投影片）。
+
 ## 操作
 
 | 動作 | 按鍵 |

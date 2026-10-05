@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<!-- 課程分享卡（1920×1080）。用無頭瀏覽器截圖成 share/分享卡.png：
+     chrome --headless --window-size=1920,1080 --screenshot=out.png file:///.../tools/share-card.html -->
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>分享卡</title>
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{width:1920px;height:1080px;overflow:hidden}
+body{background:#F5F2EC;color:#15233A;font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;position:relative}
+.bar{position:absolute;left:0;top:0;width:100%;height:14px;background:#C2610F}
+.left{position:absolute;left:120px;top:150px;width:1010px}
+.ey{font-size:34px;font-weight:700;letter-spacing:4px;color:#A3500C}
+.rule{width:150px;height:8px;border-radius:4px;background:#C2610F;margin:34px 0 30px}
+h1{font:700 104px/1.22 "Noto Serif TC","PMingLiU",serif;letter-spacing:1px}
+.sub{margin-top:22px;font-size:50px;font-weight:700;line-height:1.35}
+.who{margin-top:44px;font-size:36px;line-height:1.6;color:#3E4756}
+.who b{color:#15233A}
+.pill{display:inline-block;margin-top:44px;padding:20px 44px;border-radius:999px;background:#15233A;color:#F5F2EC;font-size:40px;font-weight:700}
+.pill span{color:#F0A35E}
+.url{margin-top:30px;font-size:34px;line-height:1.45;font-weight:700;color:#15233A;letter-spacing:.5px}
+.qr{position:absolute;right:120px;top:170px;width:620px;padding:40px 40px 30px;background:#fff;border:2px solid #DED8CC;border-radius:44px;text-align:center;box-shadow:0 18px 50px rgba(21,35,58,.12)}
+.qr img{display:block;width:540px;height:540px;image-rendering:pixelated}
+.qr p{margin-top:18px;font-size:32px;font-weight:700;color:#A3500C}
+.foot{position:absolute;left:120px;right:120px;bottom:64px;display:flex;gap:16px;font-size:28px;color:#15233A}
+.foot span{background:#EFE3D3;border-radius:999px;padding:10px 26px;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="bar"></div>
+<div class="left">
+  <div class="ey">金屬扣件智慧製造與AI生產優化實務班</div>
+  <div class="rule"></div>
+  <h1>AI倫理、資安與法規</h1>
+  <div class="sub">生成式AI應用流程與AI Agent</div>
+  <div class="who"><b>唐嘉偉 副教授</b>｜國立澎湖科技大學 行銷與物流管理系<br>115/10/06・新模螺絲股份有限公司</div>
+  <div class="pill">手機掃描 QR Code <span>開啟簡報、一起做演練</span></div>
+  <div class="url">https://jiaweitang701111-cpu.github.io/<br>fastener-ai-course/</div>
+</div>
+<div class="qr">
+  <img src="../share/QRcode.png" alt="課程簡報 QR Code">
+  <p>網頁簡報・互動演練</p>
+</div>
+<div class="foot">
+  <span>生成式AI介紹與工具指南</span><span>AI倫理、資安與法規</span><span>Prompt 法則與要素</span><span>Deep Research</span><span>ChatGPT Work 與 Skills</span>
+</div>
+</body>
+</html>

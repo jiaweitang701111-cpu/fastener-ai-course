@@ -312,7 +312,7 @@ body.mob #toast{bottom:112px}
 body.mob .mk-bar{display:block}
 body.mob .mk-bar > * + *{margin-top:10px}
 body.mob #deck::before{content:'📱 手機橫放可放大投影片；標示「互動」的演練頁可直式操作';position:absolute;left:16px;right:16px;top:calc(50% + 28.2vw + 18px);text-align:center;color:#8f9bb0;font-size:13.5px;line-height:1.6}
-@media print{html,body{overflow:visible;background:#fff}#hud,#bar,#toc,#qr,#toast{display:none!important}
+@media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{overflow:visible;height:auto;background:#fff}#hud,#bar,#toc,#qr,#toast{display:none!important}
   #deck{position:static}.s{display:block!important;position:relative;left:auto;top:auto;margin:0;transform:none;page-break-after:always}
   @page{size:1280px 720px;margin:0}}
 </style>
@@ -1072,6 +1072,9 @@ builder('ex-market',(v,m)=>({main:'我們是一間'+m(v.a,'______')+'的製造�
 const q=new URLSearchParams(location.search);
 go((+location.hash.slice(1)||1)-1,true);
 if(q.get('grid')){const r=q.get('grid').split('-').map(Number);grid(true,r.length===2?r:null);}
+// 列印／轉 PDF：每頁都要先排好版（平常只排目前這一頁）
+addEventListener('beforeprint',()=>S.forEach(prefit));
+if(q.get('print'))S.forEach(prefit);
 window.__deck={go,fit,grid,S};
 if(q.get('check'))document.head.appendChild(Object.assign(document.createElement('script'),{src:'tools/check.js'}));  // 開發用：版面自動檢查
 })();
