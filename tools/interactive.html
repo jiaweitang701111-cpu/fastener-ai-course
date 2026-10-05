@@ -1,0 +1,179 @@
+<!-- 互動演練頁。每段以 <!--@頁碼--> 開頭，build.py 會用它取代 PPTX 的同一頁。 -->
+
+<!--@36-->
+<section class="s ix" id="ex-classify">
+<div class="ix-wrap">
+  <div class="ix-ey">演練｜搭配單元二 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
+  <h2 class="ix-h">演練：這 10 份資料能不能丟給 AI？</h2>
+  <div class="ix-body">
+    <div class="cl-top">
+      <div class="cl-rule r"><b>紅｜機密</b>禁止輸入外部 AI</div>
+      <div class="cl-rule y"><b>黃｜內部</b>僅限核准之企業版 AI，先遮蔽</div>
+      <div class="cl-rule g"><b>綠｜公開</b>可使用核准工具，輸出仍須查核</div>
+      <div class="cl-ctl">
+        <span class="cl-score"></span>
+        <button class="btn hot" data-act="check">對答案</button>
+        <button class="btn ghost" data-act="reset">重來</button>
+      </div>
+    </div>
+    <div class="cl-list" aria-label="10 份資料分級"></div>
+  </div>
+</div>
+</section>
+
+<!--@51-->
+<section class="s ix" id="ex-mask">
+<div class="ix-wrap">
+  <div class="ix-ey">演練｜搭配單元二、五 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
+  <h2 class="ix-h">演練：先遮蔽資訊，再請 AI 翻成英文回覆</h2>
+  <div class="ix-body">
+    <div class="mk-grid">
+      <div class="mk-col">
+        <div class="card mk-src">
+          <div class="lab">客戶詢價原文（範例中的公司、編號與電話皆為虛構）</div>
+          <p class="mk-text"></p>
+        </div>
+        <div class="mk-bar">
+          <p class="mk-hint">👆 點選要遮蔽的資訊</p>
+          <div class="mk-task">任務
+            <span class="seg"><button class="on" data-task="trans">翻成英文回覆</button><button data-task="cap">討論：試算產能</button></span>
+          </div>
+        </div>
+        <div class="mk-legend">
+          <div class="g"><b>保留</b>完成任務所需的技術規格：尺寸、等級、表面處理</div>
+          <div class="r"><b>遮蔽</b>可識別客戶與個人的資訊：公司名、統編、人名、電話、圖號</div>
+          <div class="y"><b>視任務決定</b>商業條件：數量、交期、港口與價格條件</div>
+        </div>
+      </div>
+      <div class="mk-col">
+        <div class="promptbox mk-out">
+          <div class="lab">遮蔽後｜可以交給 AI 的版本 <button class="btn sm" data-act="copy">複製</button></div>
+          <p class="out"></p>
+        </div>
+        <div class="mk-act">
+          <button class="btn hot" data-act="check">對答案</button>
+          <button class="btn ghost" data-act="answer">看參考答案</button>
+          <button class="btn ghost" data-act="reset">重來</button>
+        </div>
+        <div class="mk-fb"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!--@86-->
+<section class="s ix" id="ex-survey">
+<div class="ix-wrap">
+  <div class="ix-ey">第四部份｜實作演練 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
+  <h2 class="ix-h">實作演練：進行市場調查分析報告</h2>
+  <div class="ix-body">
+    <div class="pb-grid">
+      <div class="card pb-form">
+        <div class="lab">填入你的產業，右側即時產生 Prompt</div>
+        <label class="fld"><span>產業，或「XXX 應用於 XXX 產業」</span>
+          <input data-f="ind" placeholder="例如：金屬扣件產業" autocomplete="off"></label>
+        <div class="chips" data-for="ind">
+          <button>金屬扣件產業</button><button>汽車扣件產業</button><button>航太扣件產業</button><button>建築用扣件產業</button><button>AI 應用於扣件製造產業</button>
+        </div>
+        <div class="fld"><span>分析面向 <small>（可點選增減）</small></span>
+          <div class="chips" data-multi>
+            <button class="on">整體現況與趨勢</button><button class="on">顧客需求</button><button class="on">技術創新</button><button class="on">競爭對手分析</button>
+          </div>
+        </div>
+        <div class="foot">
+          <button class="btn ghost sm" data-act="clear">清空</button>
+          <span>複製後貼到 ChatGPT，可搭配 Deep Research 執行</span>
+        </div>
+      </div>
+      <div class="pb-right">
+        <div class="promptbox">
+          <div class="lab">Prompt範例 <button class="btn sm" data-copy="main">複製 Prompt</button><a class="btn sm" href="https://chatgpt.com/" target="_blank" rel="noopener" style="text-decoration:none">開啟 ChatGPT ↗</a></div>
+          <p class="out" data-out="main"></p>
+        </div>
+        <div class="pb-notes">
+          <div class="card"><span class="lab">說明 01</span>Prompt要求AI扮演市場調查專家的角色，針對特定產業提供全面性的市場分析。</div>
+          <div class="card"><span class="lab">說明 02</span>透過明確列出需要的分析面向（現況與趨勢、顧客需求、技術創新、競爭對手），可以確保獲得結構完整的市場報告。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!--@87-->
+<section class="s ix" id="ex-compete">
+<div class="ix-wrap">
+  <div class="ix-ey">第四部份｜實作演練 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
+  <h2 class="ix-h">實作演練：市場競爭分析</h2>
+  <div class="ix-body">
+    <div class="pb-grid">
+      <div class="card pb-form">
+        <div class="lab">換成你的產業與競爭者</div>
+        <div class="row2">
+          <label class="fld"><span>分析者身份</span><input data-f="role" placeholder="xxx，例如：資深產業分析師" autocomplete="off"></label>
+          <label class="fld"><span>品牌類別</span><input data-f="cat" value="台灣咖啡連鎖品牌" data-d="" placeholder="例如：台灣扣件製造商" autocomplete="off"></label>
+          <label class="fld"><span>品牌 A</span><input data-f="b1" value="台灣星巴克" placeholder="競爭者名稱" autocomplete="off"></label>
+          <label class="fld"><span>品牌 B</span><input data-f="b2" value="路易莎" placeholder="競爭者名稱" autocomplete="off"></label>
+          <label class="fld"><span>品牌 C</span><input data-f="b3" value="CAMA CAFE" placeholder="競爭者名稱" autocomplete="off"></label>
+          <label class="fld"><span>品牌 D</span><input data-f="b4" value="CAFE IN 硬咖啡" placeholder="競爭者名稱" autocomplete="off"></label>
+          <label class="fld"><span>定位圖橫軸</span><input data-f="x" value="價格（低價-高價）" placeholder="例如：價格（低價-高價）" autocomplete="off"></label>
+          <label class="fld"><span>定位圖縱軸</span><input data-f="y" value="咖啡品質（大眾化-精緻化）" placeholder="例如：產品等級（標準件-特殊件）" autocomplete="off"></label>
+        </div>
+        <div class="foot">
+          <button class="btn ghost sm" data-act="clear">清空，換成自己的產業</button>
+        </div>
+      </div>
+      <div class="pb-right">
+        <div class="promptbox">
+          <div class="lab">Prompt範例 <button class="btn sm" data-copy="main">複製</button></div>
+          <p class="out" data-out="main" style="font-size:20px;line-height:31px"></p>
+        </div>
+        <div class="promptbox" style="background:#EFE3D3;color:#15233A;border:1px solid #C2610F">
+          <div class="lab" style="color:#A3500C">延伸 Prompt｜再利用ChatGPT製作市場定位圖 <button class="btn sm" data-copy="ext" style="background:#15233A;border-color:#15233A;color:#F5F2EC">複製</button></div>
+          <p class="out ext" data-out="ext" style="font-size:19px;line-height:29px;font-weight:400"></p>
+        </div>
+        <div class="card pb-note1"><span class="lab">說明 01</span>透過分析競爭對手的優劣勢、服務與顧客群，可以找出自身的市場定位與差異化策略。</div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!--@88-->
+<section class="s ix" id="ex-market">
+<div class="ix-wrap">
+  <div class="ix-ey">第四部份｜實作演練 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
+  <h2 class="ix-h">實作演練：全球市場規模分析</h2>
+  <div class="ix-body">
+    <div class="pb-grid">
+      <div class="card pb-form">
+        <div class="lab">填滿六個空格，換成自家公司的版本</div>
+        <div class="row2">
+          <label class="fld"><span>① 我們是一間＿＿的製造商</span><input data-f="a" placeholder="例如：汽車扣件" autocomplete="off"></label>
+          <label class="fld"><span>② 產品具備＿＿等功能</span><input data-f="b" placeholder="例如：高強度、耐腐蝕" autocomplete="off"></label>
+          <label class="fld"><span>③ 和＿＿特色</span><input data-f="c" placeholder="例如：輕量化" autocomplete="off"></label>
+          <label class="fld"><span>④ 產品主要應用於＿＿</span><input data-f="d" placeholder="例如：汽車底盤與引擎系統" autocomplete="off"></label>
+          <label class="fld"><span>⑤ 主要銷售市場涵蓋＿＿</span><input data-f="e" placeholder="例如：北美與歐洲" autocomplete="off"></label>
+          <label class="fld"><span>⑥ 想分析的產品</span><input data-f="f" placeholder="例如：汽車用高強度螺栓" autocomplete="off"></label>
+        </div>
+        <div class="foot">
+          <button class="btn ghost sm" data-act="example">帶入扣件範例</button>
+          <button class="btn ghost sm" data-act="clear">清空</button>
+          <span>範例內容為示意，請換成自家產品</span>
+        </div>
+      </div>
+      <div class="pb-right">
+        <div class="promptbox">
+          <div class="lab">Prompt範例 <button class="btn sm" data-copy="main">複製 Prompt</button><a class="btn sm" href="https://chatgpt.com/" target="_blank" rel="noopener" style="text-decoration:none">開啟 ChatGPT ↗</a></div>
+          <p class="out" data-out="main"></p>
+        </div>
+        <div class="pb-notes">
+          <div class="card"><span class="lab">說明 01</span>Prompt範例可以根據不同產品進行客製化調整。</div>
+          <div class="card"><span class="lab">說明 02</span>透過提供產品的功能、特色、應用場景與現有市場，可以更精準地分析全球市場機會，幫助企業制定國際化策略。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>

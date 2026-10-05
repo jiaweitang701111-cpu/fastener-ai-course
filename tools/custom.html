@@ -1,0 +1,115 @@
+<!-- 手工重新設計的頁。每段以 <!--@原 PPT 頁碼--> 開頭，build.py 會用它整頁取代 PPT 的同一頁。
+     文字照抄 PPT（第 66 頁上方說明是濃縮版）；@@IMG:名稱@@ 會換成 tools/images/名稱.jpg。 -->
+
+<!--@32-->
+<section class="s cx">
+<div class="cx-wrap">
+  <div class="ix-ey">單元二｜導入案例</div>
+  <h2 class="ix-h">三星開放 ChatGPT 後，20 天內發生 3 起外洩</h2>
+  <div class="cx-body">
+    <div class="cx-split">
+      <div class="cx-main">
+        <div class="cx-case">
+          <div class="cx-navy stat">
+            <b>3 起</b>
+            <p>2023-03-11 開放使用後，約 20 天內發生的外洩事件</p>
+            <p>先限制單次輸入流量，2023-05-02 全面禁用生成式 AI</p>
+          </div>
+          <div class="cx-list">
+            <div class="cx-card"><b>1</b><p>貼上設備量測程式的完整原始碼，請 AI 找錯誤</p></div>
+            <div class="cx-card"><b>2</b><p>上傳良率與瑕疵設備的程式碼，請 AI 最佳化</p></div>
+            <div class="cx-card"><b>3</b><p>把會議錄音逐字稿交給 AI 製作會議紀錄</p></div>
+          </div>
+        </div>
+        <div class="cx-note"><p><b>對照扣件廠：</b>把客戶圖面貼進免費 AI 翻譯，或把製程品管完全交由 AI 分析，風險性質完全相同。</p></div>
+      </div>
+      <div class="cx-pic"><img src="@@IMG:leak@@" alt="員工把機密文件貼進 AI 對話視窗，文件外流的示意圖"></div>
+    </div>
+  </div>
+  <div class="cx-src">來源：Economist Korea（2023-03-30）；TechCrunch（2023-05-02）</div>
+</div>
+</section>
+
+<!--@46-->
+<section class="s cx">
+<div class="cx-wrap">
+  <div class="ix-ey">單元四</div>
+  <h2 class="ix-h">輸出查核五步驟：沒有來源，就是未經查證</h2>
+  <div class="cx-body">
+    <div class="cx-steps">
+      <div class="cx-card"><b class="no">1</b><h3>標示來源</h3><p>要求 AI 列出依據；無來源者一律視為未經查證</p></div>
+      <i class="cx-arrow">→</i>
+      <div class="cx-card"><b class="no">2</b><h3>回查原文</h3><p>標準、法規、圖面與合約，以原始文件核對</p></div>
+      <i class="cx-arrow">→</i>
+      <div class="cx-card"><b class="no">3</b><h3>數值驗算</h3><p>公差、硬度、扭力、產能與交期，以 ERP／MES 資料重算</p></div>
+      <i class="cx-arrow">→</i>
+      <div class="cx-card"><b class="no">4</b><h3>情境檢核</h3><p>是否符合模具、爐次、人力與客戶特殊要求</p></div>
+      <i class="cx-arrow">→</i>
+      <div class="cx-card hot"><b class="no">5</b><h3>簽核留痕</h3><p>權責人員簽核，保存 AI 輸出版本與修改紀錄</p></div>
+    </div>
+    <div class="cx-navy cx-banner">沒有來源，就是未經查證；沒有簽核，就不能使用。</div>
+  </div>
+</div>
+</section>
+
+<!--@63-->
+<section class="s cx">
+<div class="cx-wrap">
+  <div class="ix-ey">第三部份｜Prompt的法則與要素</div>
+  <h2 class="ix-h">Prompt撰寫要素：PTCF四要素</h2>
+  <div class="cx-body">
+    <div class="cx-grid2">
+      <div class="cx-card"><span class="big">P</span><div><h3>P — 角色 (Persona)</h3><p>設定AI應扮演的角色、職位或身分。 例如：你是一位 [產業] 的專案經理</p></div></div>
+      <div class="cx-card"><span class="big">C</span><div><h3>C — 背景資訊 (Context)</h3><p>提供相關的背景細節、參考資料或情境，讓AI根據這些資訊生成內容。例如：根據上傳的資料…[相關專案文件的細節]。</p></div></div>
+      <div class="cx-card"><span class="big">T</span><div><h3>T — 任務 (Task)</h3><p>明確指出您希望AI執行的具體工作，包含明確的動詞或指令（例如：撰寫、總結、改變語氣等）。</p></div></div>
+      <div class="cx-card"><span class="big">F</span><div><h3>F — 格式 (Format)</h3><p>指定輸出的形式或呈現方式。例如：「限制使用列點方式呈現」或「整理成表格格式」。</p></div></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!--@66-->
+<section class="s cx">
+<div class="cx-wrap">
+  <div class="ix-ey">第三部份｜結構化Prompt</div>
+  <h2 class="ix-h">結構化Prompt：指定角色、任務目標、執行規範</h2>
+  <div class="cx-body">
+    <div class="cx-why">
+      <h3>為什麼要結構化Prompt？</h3>
+      <p>只問「請幫我整理這份資料」，AI的回答不一定穩定、可檢查，也接不上下一個流程。</p>
+      <p>企業需要的AI產出：可預期、可追溯、可驗收、可延伸。</p>
+      <p class="key">所以Prompt不是一句問題，而是一份AI工作規格。</p>
+    </div>
+    <div class="cx-flow">
+      <div class="cx-card"><h3>【角色設定】角色／背景</h3><p>先定義AI在任務中的身分、專業能力與使用情境。</p>
+        <div class="goal">目的：讓AI明確知道自己是誰、服務誰、站在哪個工作場景中回答。</div></div>
+      <i class="cx-arrow">→</i>
+      <div class="cx-card"><h3>【任務目標】任務</h3><p>明確告訴AI這次要完成什麼工作，以及產出要被誰使用。</p>
+        <div class="goal">目的：讓AI不只是生成文字，而是完成一個可以被使用、被交接、被驗收的工作任務。</div></div>
+      <i class="cx-arrow">→</i>
+      <div class="cx-card"><h3>【執行規範】背景／格式／驗收</h3><p>指定AI回答時必須遵守的資料邊界、輸出格式與檢查標準。</p>
+        <div class="goal">目的：讓AI的輸出不只看起來完整，而是能被查核、被修正、被流程延伸。</div></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!--@77-->
+<section class="s cx">
+<div class="cx-wrap">
+  <div class="ix-ey">第三部份｜個人化建議與Memory</div>
+  <h2 class="ix-h">個人化建議設定（三）：語調與風格</h2>
+  <div class="cx-body">
+    <div class="cx-split cx-tone">
+      <div class="cx-main">
+        <div class="cx-navy">
+          <span class="lab"><b>個人化建議指令</b></span>
+          <p>請以較正式的語調和風格來回答，使用正式、專業的語氣。請提供較長的回應、提供較詳細的資訊。請使用高級、精通級的語言熟練程度來回應。</p>
+        </div>
+        <div class="cx-card hot"><p>透過三項個人化建議的設定，可以大幅提升AI回覆的品質、準確性與專業度，讓AI真正成為你的得力助手。</p></div>
+      </div>
+      <div class="cx-pic"><img src="@@IMG:tone@@" alt="調整滑桿改變 AI 回答語調與風格的示意圖"></div>
+    </div>
+  </div>
+</div>
+</section>
