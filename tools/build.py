@@ -193,6 +193,8 @@ def parse_slide(xml, rels, recolor):
                 continue  # 空的透明框
         elif tag == "pic":
             e["img"] = rels.get(node.find("p:blipFill/a:blip", NS).get(REMBED))
+            if not e["img"]:
+                continue  # 外部連結的圖片（檔案裡沒有圖）
         else:
             tbl = node.find(".//a:tbl", NS)
             e["cols"] = [int(c.get("w")) / EMU for c in tbl.findall("a:tblGrid/a:gridCol", NS)]
@@ -686,6 +688,26 @@ def render(e, images, static):
         cls, ";".join(css), data_attrs(e, e["y"], e["h"]), render_paras(e["paras"]))
 
 
+def shrink_image(data):
+    """大張的圖片轉成 JPEG（有透明的 PNG 維持原樣），寬度最多 1600px；只在變小時採用"""
+    try:
+        import io
+        from PIL import Image
+        im = Image.open(io.BytesIO(data))
+        if "A" in im.getbands() and im.getextrema()[-1][0] < 255:
+            return "image/png", data
+        im = im.convert("RGB")
+        if im.width > 1600:
+            im = im.resize((1600, round(im.height * 1600 / im.width)), Image.LANCZOS)
+        buf = io.BytesIO()
+        im.save(buf, "JPEG", quality=82, optimize=True)
+        if buf.tell() < len(data):
+            return "image/jpeg", buf.getvalue()
+    except Exception:
+        pass
+    return "image/png", data
+
+
 def build(src, out):
     import patches
 
@@ -705,6 +727,13 @@ def build(src, out):
         iz, ifiles, ik = open_deck(Path(src).parent / path)
         pos = next(n for n, it in enumerate(items) if it[0] == after) + 1
         items[pos:pos] = [(base + j, iz, f, ik) for j, f in enumerate(ifiles, 1)]
+    for key, n in getattr(patches, "DUP", {}).items():  # 一頁拆成多頁：頁碼 key.1、key.2…
+        pos = next(idx for idx, it in enumerate(items) if it[0] == key)
+        items[pos:pos + 1] = [(key + j / 10, items[pos][1], items[pos][2], items[pos][3]) for j in range(1, n + 1)]
+    if hasattr(patches, "reorder"):  # 調整頁序（例如把一個單元整段搬到另一個單元前面）
+        want = patches.reorder([it[0] for it in items])
+        by = {it[0]: it for it in items}
+        items = [by[k] for k in want]
 
     # 互動演練頁與手工重新設計的頁：都是以 <!--@原頁碼--> 標示、整頁取代 PPT 的同一頁
     frag = "".join(re.sub(r"^.*?(?=<!--@\d+-->)", "", (HERE / f).read_text(encoding="utf-8"), flags=re.S)
@@ -725,8 +754,10 @@ def build(src, out):
         if rel_path in z.namelist():
             for r in etree.fromstring(z.read(rel_path)):
                 rels[r.get("Id")] = r.get("Target")
-        recolor = {k.upper(): v for k, v in patches.RECOLOR.get(i, {}).items()}
+        recolor = {k.upper(): v for k, v in {**getattr(patches, "DECK_RECOLOR", {}).get(i // 100 * 100, {}),
+                                              **patches.RECOLOR.get(i, {})}.items()}
         bg, els = parse_slide(z.read(f), rels, recolor)
+        bg = getattr(patches, "BG", {}).get(i, bg)
         t = assign_roles(els)
         if i not in inter:
             try:
@@ -746,10 +777,10 @@ def build(src, out):
             if e["tag"] == "pic":
                 key = (id(z), e["img"])
                 if key not in images:
-                    data = z.read("ppt/" + e["img"][3:])
+                    mime, data = shrink_image(z.read("ppt/" + e["img"][3:]))
                     images[key] = "im%d" % len(images)
-                    img_css.append(".%s{background:url(data:image/png;base64,%s) center/100%% 100%% no-repeat}"
-                                   % (images[key], base64.b64encode(data).decode()))
+                    img_css.append(".%s{background:url(data:%s;base64,%s) center/100%% 100%% no-repeat}"
+                                   % (images[key], mime, base64.b64encode(data).decode()))
                 e["img"] = key
         static = bg.upper() != "#F5F2EC" or t is None
         attrs = "" if static else analyze(els)

@@ -16,6 +16,129 @@ DROP |= set(range(25, 60))
 # 插入的其他簡報：(接在主簡報第幾頁之後, 檔名（與主簡報同資料夾）, 頁碼基數)；該簡報第 j 頁在這裡的頁碼是 基數+j
 INSERTS = [
     (22, "生成式AI與智慧營運人才培訓授課簡報完成版本(AI 三功能的本質區分).pptx", 200),  # 201：生成式 AI 三大功能
+    (79, "生成式AI與智慧營運人才培訓授課簡報完成版本(ChatGPT).pptx", 300),  # 301–312：第三部份 ChatGPT 實作
+    (109, "生成式AI與智慧營運人才培訓授課簡報完成版本(Gemini).pptx", 400),  # 401–440：第六部份 Gemini
+    (128, "Claude功能與使用全攻略.pptx", 500),  # 501–540：第七部份 Claude（540 是重複的感謝頁，刪）
+]
+DROP |= {128, 540}  # 128：Skills 結語頁（依 2026-10-13 指示拿掉）
+
+# 背景色覆寫（把插入簡報的章名頁改成主簡報的深藍章名頁）
+BG = {}
+
+# 整份插入簡報的字色對應（藍色系 → 主簡報的深藍／橘）；色塊與表格的顏色在 restyle() 處理
+BLUE_MAP = {
+    "#4967E9": "#C2610F", "#D2D9F9": "#EFE3D3", "#BBC6F7": "#EFE3D3", "#F9F9FF": "#FCFBF8",
+    "#404155": "#15233A", "#000000": "#15233A", "#1B1B27": "#15233A", "#002060": "#15233A",
+    "#910D0D": "#A3500C", "#C00000": "#C2610F", "#F44444": "#C2610F", "#FF0000": "#C2610F",
+}
+DECK_RECOLOR = {300: BLUE_MAP, 400: BLUE_MAP}
+
+
+def reorder(keys):
+    """第五部份：先講 Skills（原 110–127）再講 Work（原 96–109）"""
+    skills = [k for k in keys if 110 <= k <= 127]
+    work = [k for k in keys if 96 <= k <= 109]
+    out = [k for k in keys if k not in skills and k not in work]
+    pos = out.index(95) + 1
+    out[pos:pos] = skills + work
+    return out
+
+
+def restyle(els, cmap):
+    """色塊、框線、表格儲存格的顏色對應（字色由 build 讀檔時處理）"""
+    up = {k.upper(): v for k, v in cmap.items()}
+    for e in els:
+        for k in ("fill", "stroke"):
+            if e.get(k):
+                e[k] = up.get(e[k].upper(), e[k])
+        for row in e.get("rows", []):
+            for cell in row["cells"]:
+                cell["css"] = re.sub(r"#[0-9A-Fa-f]{6}", lambda m: up.get(m.group(0).upper(), m.group(0)), cell["css"])
+
+
+def auto_roles(els, h):
+    """沒有標題版面配置的插入頁：上方字最大的文字框當標題，標題上方的當頁首小標；整頁對齊到標題 y≈129"""
+    texts = [e for e in els if "paras" in e and not e.get("fill")]
+    cands = [e for e in texts if e["y"] < 170] or texts
+    zmax = lambda e: max(r["z"] for p in e["paras"] for r in p["runs"])
+    t = max(cands, key=zmax)
+    t["role"] = "title"
+    for e in texts:
+        if e is not t and e["y"] + e["h"] <= t["y"] + 2 and e["role"] != "source":
+            e["role"] = "eyebrow"
+    dy = 129 - t["y"]
+    for e in els:
+        if e["role"] != "source":
+            e["y"] += dy
+    return t
+
+
+def mk_text(like, x, y, w, h, lines, z, color, serif=False, b=True, lh=None):
+    """用現有文字元素當樣板，造一個新的文字框（lines：每行一段）"""
+    e = copy.deepcopy(like)
+    e.update(x=x, y=y, w=w, h=h, role="", fill=None, stroke=None, sw=0, prst="rect", anchor="t", pad=[0, 0, 0, 0])
+    e.pop("boost", None)
+    e["paras"] = e["paras"][:1]
+    for i, line in enumerate(lines):
+        if i:
+            e["paras"].append(copy.deepcopy(e["paras"][0]))
+        para = e["paras"][i]
+        para.update(algn=None, sb=0, bu=None, x=None, hang=None, lh=lh or round(z * 1.3, 1))
+        para["runs"] = [dict(para["runs"][0], text=line, z=z, color=color, serif=serif, b=b, i=False, u=False, spc=0, href=None)]
+    return e
+
+
+def divider(els, eyebrow, title, desc):
+    """整頁改成主簡報的深藍章名頁（版面照原第 95 頁）；呼叫端要把 BG 設成 NAVY"""
+    like = next(e for e in els if "paras" in e)
+    est = sum(1 if ord(ch) > 0x2E7F else 0.56 for ch in title) * 64  # 標題太長就縮小字級，維持一行
+    tz = 64 if est <= 1120 else round(64 * 1120 / est, 1)
+    bar = {"tag": "sp", "role": "", "x": 85.3, "y": 248, "w": 106.7, "h": 5.3, "ph": None, "prst": "rect", "adj": 16667,
+           "fill": AMBER, "stroke": None, "sw": 0, "arrow": False}
+    els[:] = [bar,
+              mk_text(like, 85.3, 280, 1142.7, 34, [eyebrow], 22.7, AMBER),
+              mk_text(like, 85.3, 338, 1142.7, 76, [title], tz, CREAM, serif=True, lh=80)]
+    if desc:
+        els.append(mk_text(like, 85.3, 438, 1142.7, 36 * len(desc), desc, 22.7, "#C7D0DC", b=False, lh=36))
+
+
+# 插入簡報裡的章名頁／單元頁（原本是左右各半的圖＋標題）：改成深藍章名頁
+DIVIDERS = {
+    301: ("第三部份", "運用 ChatGPT 進行文案生成與數據分析",
+          ["文案生成實作：社群媒體文案、活動企劃案、廣告文案與影音廣告腳本",
+           "數據分析實作：數據圖像化、Excel 檔整理、分析與運算，以及生產資料分析的實務建議"]),
+    306: ("ChatGPT 實作", "運用 ChatGPT 進行市場調查分析", []),
+    307: ("ChatGPT 實作", "運用 ChatGPT 進行數據分析與策略擬定", []),
+    401: ("第六部份", "Gemini 搜索、檢索與生成技術應用",
+          ["區分 AI 搜索、檢索與生成的核心差異",
+           "深入介紹 Google AI 搜索與檢索、Deep Research 與 Gemini Notebook 三者構成的工作流程"]),
+    407: ("Gemini 生圖", "Gemini 生圖功能與核心概念",
+          ["從生圖、改圖、資訊圖表到一致性的應用指南",
+           "涵蓋模型選擇、提示詞撰寫、圖片修改、風格一致性、與資訊圖表生成"]),
+    412: ("Gemini Canvas", "Gemini Canvas 與創作功能",
+          ["Canvas 三大功能：寫文章、生成投影片、寫程式",
+           "從簡報撰作、Google Slides 生成、Viber Coding 開發，到 Apps Script 操作應用"]),
+    419: ("Gemini Notebook", "認識 Gemini Notebook",
+          ["9 大功能、介面三區",
+           "從資料來源區、對話區到工作室：資訊圖表、簡報、資料表格、影片與語音摘要、心智圖、報告、學習卡、測驗"]),
+    426: ("Gemini Notebook 職場實戰", "Gemini Notebook 職場實戰四例",
+          ["競品分析簡報、報價單比較表、會議紀錄、財報解讀",
+           "四個可直接套用於金屬扣件企業的工作情境：從蒐集、結構化到視覺化，並以資料表、簡報與提示詞完成交付"]),
+    436: ("Gemini × Gemini Notebook", "Gemini × Gemini Notebook 市場研究工作流",
+          ["8 步驟：Deep Research 蒐集完整資料，Gemini Notebook 提煉核心洞察",
+           "《如何在 30 分鐘內完成 10 小時的研究》：AI 的價值不是取代創意，而是消滅「沒人真正想做」的繁瑣雜活"]),
+}
+BG.update({k: NAVY for k in DIVIDERS})
+
+# 一頁拆成幾頁（原檔內容超出版面）
+DUP = {304: 2}  # 廣告文案生成：步驟一、步驟二各一頁
+
+# 插入簡報的內容頁沒有頁首小標：依單元補上
+EYEBROWS = [
+    (302, 305, "第三部份｜ChatGPT 文案生成實作"), (308, 312, "第三部份｜ChatGPT 數據分析實作"),
+    (402, 406, "第六部份｜Gemini 搜索與 Deep Research"), (408, 411, "第六部份｜Gemini 生圖"),
+    (413, 418, "第六部份｜Gemini Canvas"), (420, 425, "第六部份｜Gemini Notebook"),
+    (427, 435, "第六部份｜Gemini Notebook 職場實戰"), (437, 440, "第六部份｜Gemini × Gemini Notebook 市場研究"),
 ]
 
 # 個別頁的放大上限（1.35 是預設；字被嫌太大的頁壓低）
@@ -50,6 +173,81 @@ def apply(i, els, h):
         for r in (r for p in role("source")["paras"] for r in p["runs"]):
             r["color"] = DARK
 
+    if i in DIVIDERS:
+        divider(els, *DIVIDERS[i])
+    elif 300 <= i < 600:  # 插入的三份簡報的內容頁
+        if 300 <= i < 500:
+            restyle(els, BLUE_MAP)
+            els[:] = [e for e in els if "paras" in e or not (e["w"] >= 1200 and e["h"] >= 680)]  # 整頁的背景圖／底色
+        t = auto_roles(els, h)
+        if i in (304.1, 304.2):  # 小標的框太窄，字會折行
+            for e in many(r"^(先了解廣告文案|依據關鍵要素)"):
+                e["w"] = 700
+        if i == 304.1:  # 廣告文案生成（步驟一）：只留上半
+            els[:] = [e for e in els if e["y"] < 455 or e["role"]]
+        elif i == 304.2:  # 步驟二：拿掉上半，步驟二的標題升為頁標題
+            els[:] = [e for e in els if e["role"] == "eyebrow" or e["y"] >= 455]
+            t = one(r"步驟二")
+            t["role"] = "title"
+            t["h"] = 51
+            for r in t["paras"][0]["runs"]:
+                r.update(z=40.0)
+            dy = t["y"] - 129
+            for e in els:
+                if e["role"] != "eyebrow":
+                    e["y"] -= dy
+        if 300 <= i < 500:
+            for r in t["paras"][0]["runs"]:  # 標題改成主簡報的深藍襯線體
+                r.update(color=NAVY, serif=True, z=40.0, b=True)
+            t["h"] = 51
+        ey = next((e for e in els if e["role"] == "eyebrow"), None)
+        if ey is None:
+            text = next((txt for lo, hi, txt in EYEBROWS if lo <= i <= hi), "")
+            ey = mk_text(t, 85.3, 85.3, 1142.7, 25.1, [text], 16.0, "#A3500C", lh=22.4)
+            ey["role"] = "eyebrow"
+            els.insert(0, ey)
+        elif 500 <= i < 600:
+            for para in ey["paras"]:
+                for r in para["runs"]:
+                    if r["text"].strip():
+                        r["text"] = "第七部份｜" + r["text"]
+                        break
+    if i == 310:  # 頁首的裝飾橫幅圖拿掉，內容往上靠
+        els[:] = [e for e in els if not (e["tag"] == "pic" and e["w"] >= 1200)]
+        body = [e for e in els if not e["role"]]
+        dy = min(e["y"] for e in body) - 200
+        for e in body:
+            e["y"] -= dy
+    if i == 312:  # 原檔的四個圖示是外部連結（檔案裡沒有圖）：圓圈改成橘底編號
+        circles = sorted((e for e in els if "paras" not in e and abs(e["w"] - e["h"]) < 2 and e["w"] > 40), key=lambda e: (e["y"] // 150, e["x"]))
+        like = one(r"^資料準備")
+        for n, c in enumerate(circles, 1):
+            c["fill"], c["stroke"] = "#C2610F", None
+            num = mk_text(like, c["x"], c["y"] + c["h"] / 2 - 15, c["w"], 30, [str(n)], 22.0, "#FFFFFF")
+            num["paras"][0]["algn"] = "center"
+            els.append(num)
+    if i == 428:  # 實戰二：原檔內容到頁底，往上壓縮，底部備註字級改成跟卡片一樣
+        f = 0.82
+        for e in els:
+            if e["role"]:
+                continue
+            e["y"] = 190 + (e["y"] - 190) * f
+            if "paras" not in e and e["h"] > 100:
+                e["h"] *= f
+        note = one(r"^資安評估準則")
+        note["h"] = 72
+        for para in note["paras"]:
+            for r in para["runs"]:
+                r["z"] = 20.0
+        for pat, z in ((r"^於右側「工作室」", 18.5), (r"^Gemini Notebook 沒有外部知識", 20.0)):
+            for r in one(pat)["paras"][0]["runs"]:
+                r["z"] = z
+    if i == 501:  # Claude 簡報的第一頁改成第七部份章名頁
+        h.set_text(one(r"單元一$")["paras"][0], "第七部份")
+        h.set_text(one(r"Claude AI 核心功能導覽")["paras"][0], "Claude 功能與使用全攻略")
+        h.set_text(one(r"三大核心特色、Research")["paras"][0],
+                   "單元一 Claude AI 核心功能｜單元二 Chat、Cowork、Code 三模式｜單元三 模型與方案怎麼選｜單元四 Cowork 數位同事｜單元五 用 Cowork 做簡報｜使用注意事項")
+
     if i == 201:  # 插入頁：常見的生成式 AI 三大功能（1600×900 來源，已換算成 1280 寬）
         t = one("常見的 生成式 AI 三大功能")
         t["role"] = "title"
@@ -68,14 +266,29 @@ def apply(i, els, h):
         for pat, ref in (("功能：AI 生成", "功能：AI 搜索"), ("依資料重組", "從全球網路")):
             one(pat)["w"] = one(ref)["w"]
 
+    if 60 <= i <= 79:  # 第二部份拿掉後，原第三部份改為第二部份
+        for e in els:
+            for para in e.get("paras", []):
+                for r in para["runs"]:
+                    r["text"] = r["text"].replace("第三部份", "第二部份")
+    if i == 95:  # 先講 Skills 再講 Work
+        h.set_text(one(r"ChatGPT：Work 與 Skills")["paras"][0], "ChatGPT：Skills 與 Work")
+        one(r"^ChatGPT Work：")["paras"].reverse()
+
     if i == 1:
+        h.set_text(one(r"^金屬扣件智慧製造")["paras"][0], "金屬扣件AI智慧品保視覺檢測與決策應用班")
+        h.set_text(one(r"^AI倫理、資安與法規介紹")["paras"][0], "生成式AI發展與金屬扣件產業轉型")
+        h.remove(els, one(r"^生成式AI應用流程與AI Agent"))
+        for e in els:  # 副標拿掉後，分隔線與講者資訊往上靠
+            if e["y"] >= 495:
+                e["y"] -= 60
         e = one(r"^講者：")
+        h.set_text(e["paras"][1], "授課日期：115/10/15")
+        h.set_text(e["paras"][2], "授課地點：大台南會展中心")
         e["boost"] = 1.7
         for para in e["paras"][1:]:  # 授課日期、授課地點換成琥珀色，和講者那一行區分
             for r in para["runs"]:
                 r["color"] = AMBER
-    elif i == 8:
-        h.sub(one(r"扣件廠四個工作流程"), "扣件廠四個工作流程", "扣件廠三個工作流程")
     elif i == 10:
         h.recolor_pills(els, NAVY, CREAM)
     elif i == 7:

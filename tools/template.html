@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>金屬扣件智慧製造與AI生產優化實務班｜AI倫理、資安與法規・生成式AI應用流程</title>
+<title>金屬扣件AI智慧品保視覺檢測與決策應用班｜生成式AI發展與金屬扣件產業轉型</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- 字型以非阻塞方式載入：網路不通時簡報照常運作，改用本機的 Noto／微軟正黑體 -->
@@ -210,6 +210,12 @@ body.web .qrbtn{display:inline-block}
 .cx-steps p{margin-top:16px}
 .cx-banner{padding:22px 30px;font-size:30px;line-height:44px;font-weight:700;text-align:center}
 /* 2×2 等大卡片 */
+.cx-lead{font-size:20px;line-height:29px;color:var(--mute)}
+.cx-parts{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1fr;gap:12px}
+.cx-parts .cx-card{padding:12px 16px 10px;display:flex;flex-direction:column}
+.cx-parts b{font:700 38px/1 "Noto Serif TC","PMingLiU",serif;color:var(--orange)}
+.cx-parts h3{margin-top:6px;padding-bottom:6px;border-bottom:3px solid var(--orange);font-size:20.5px;line-height:28px}
+.cx-parts p{margin-top:7px;font-size:17px;line-height:24.5px;color:var(--body)}
 .cx-grid2{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:16px}
 .cx-grid2 .cx-card{display:flex;gap:26px;align-items:center;padding:20px 30px}
 .cx-grid2 .big{flex:none;width:88px;text-align:center;font:700 104px/1 "Noto Serif TC","PMingLiU",serif;color:var(--orange)}
@@ -501,7 +507,7 @@ function go(i,noHash){
   $('#pg').textContent=(cur+1)+' / '+N;
   $('#bar').style.width=((cur+1)/N*100)+'%';
   if(!noHash)history.replaceState(null,'','#'+(cur+1));
-  document.title=(S[cur].dataset.t||'')+'｜金屬扣件智慧製造與AI生產優化實務班';
+  document.title=(S[cur].dataset.t||'')+'｜金屬扣件AI智慧品保視覺檢測與決策應用班';
   S[cur].dispatchEvent(new Event('show'));
 }
 const next=()=>go(cur+1), prev=()=>go(cur-1);
