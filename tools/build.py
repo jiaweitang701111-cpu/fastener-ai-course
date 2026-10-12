@@ -746,7 +746,7 @@ def build(src, out):
     Path(out).write_text(page, encoding="utf-8")
     print("頁數: %d（原 %d 頁，刪除原第 %s 頁），檔案: %.0f KB" % (
         len(sections), len(files), "、".join(map(str, sorted(patches.DROP))), len(page.encode("utf-8")) / 1024))
-    print("互動／重新設計頁: " + ", ".join("原 p.%d → 新 p.%d" % (k, pages[k]) for k in sorted(inter)))
+    print("互動／重新設計頁: " + ", ".join("原 p.%d → 新 p.%d" % (k, pages[k]) for k in sorted(inter) if k in pages))
     return pages
 
 
