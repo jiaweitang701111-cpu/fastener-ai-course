@@ -169,6 +169,24 @@ body.web .qrbtn{display:inline-block}
 .dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:1px}
 
 /* 演練三～五：Prompt 產生器 */
+.qz-grid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.18fr) minmax(0,1fr);gap:16px}
+.qz-form{padding:14px 20px;display:flex;flex-direction:column;gap:8px;min-height:0}
+.qz-list{display:flex;flex-direction:column;gap:6px}
+.qz-row{display:flex;align-items:center;gap:10px;padding:6px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:19px;line-height:27px;color:var(--ink)}
+.qz-row span{flex:1}
+.qz-row button{border:1.5px solid #C9C3B6;background:#fff;border-radius:8px;padding:2px 14px;font-size:17px;font-weight:700;cursor:pointer;color:var(--mute);line-height:26px}
+.qz-row button:hover{border-color:var(--orange)}
+.qz-row button.on{background:var(--navy);border-color:var(--navy);color:#F5F2EC}
+.qz-row button.on.no{background:#9aa1ab;border-color:#9aa1ab}
+.qz-right{display:flex;flex-direction:column;gap:12px;min-height:0}
+.qz-res{flex:1;padding:18px 22px;display:flex;flex-direction:column;gap:10px;min-height:0;overflow:auto}
+.qz-res .res{font-size:18px;font-weight:700;color:var(--rust);letter-spacing:.6px}
+.qz-res .big{font:700 40px/1.2 "Noto Serif TC","PMingLiU",serif;color:var(--orange)}
+.qz-res p{font-size:19.5px;line-height:30px;color:var(--body);margin:0}
+.qz-res .model{background:var(--sand);border-radius:10px;padding:10px 14px;font-size:19px;line-height:28px;color:var(--navy)}
+body.mob .qz-grid{display:block}
+body.mob .qz-right{margin-top:12px}
+body.mob .qz-row{font-size:16px;line-height:24px}
 .pb-grid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.22fr);gap:16px}
 .pb-form{padding:14px 20px;display:flex;flex-direction:column;gap:9px;min-height:0}
 .pb-form .row2{display:grid;grid-template-columns:1fr 1fr;gap:9px 12px}
@@ -604,21 +622,10 @@ $$('.qrbtn').forEach(b=>b.onclick=()=>{
 });
 $('#qr').onclick=()=>$('#qr').classList.remove('on');
 
-/* ── 演練一：資料分級 ── */
-(function(){
-  const root=$('#ex-classify');if(!root)return;
-  const NAME={r:'紅',y:'黃',g:'綠'};
-  const DATA=[
-    ['客戶提供之 M10 法蘭螺栓圖面 PDF','r','客戶技術資料，多有保密約定'],
-    ['熱處理爐溫曲線與回火參數','r','自身核心製程知識'],
-    ['公司中英文產品型錄','g','已公開'],
-    ['本週生產排程（含客戶名稱）','y','遮蔽客戶名稱後可用企業版 AI'],
-    ['員工健檢報告','r','特種個資'],
-    ['已購買之 ISO 898-1 標準全文 PDF','y','受授權條款限制，不宜整份上傳'],
-    ['客戶詢價 Email（含聯絡人姓名、電話）','y','遮蔽個資與客戶名稱後可用'],
-    ['新開發自攻螺絲之模具設計圖','r','未公開之設計'],
-    ['官網已發布之新聞稿','g','已公開'],
-    ['MES 停機紀錄匯出（無客戶資料）','y','內部營運資料']];
+/* ── 分類演練（資料分級、Claude 資料安全） ── */
+function classify(id,NAME,DATA){
+  const root=$('#'+id);if(!root)return;
+  const N=DATA.length;
   const list=$('.cl-list',root),score=$('.cl-score',root);
   let pick=[],shown=[];
   function draw(){
@@ -631,7 +638,7 @@ $('#qr').onclick=()=>$('#qr').classList.remove('on');
     }).join('');
     const nPick=pick.filter(Boolean).length,nShown=shown.filter(Boolean).length;
     const ok=DATA.filter((d,i)=>shown[i]&&pick[i]===d[1]).length;
-    score.innerHTML=nShown?'答對 '+ok+' / '+nShown+' 題':'已作答 '+nPick+' / 10';
+    score.innerHTML=nShown?'答對 '+ok+' / '+nShown+' 題':'已作答 '+nPick+' / '+N;
   }
   list.onclick=e=>{
     const row=e.target.closest('.cl-row');if(!row)return;const i=+row.dataset.i;
@@ -640,6 +647,62 @@ $('#qr').onclick=()=>$('#qr').classList.remove('on');
   };
   $('[data-act=check]',root).onclick=()=>{shown=DATA.map(()=>true);draw();};
   $('[data-act=reset]',root).onclick=()=>{pick=[];shown=[];draw();};
+  draw();
+}
+classify('ex-classify',{r:'紅',y:'黃',g:'綠'},[
+    ['客戶提供之 M10 法蘭螺栓圖面 PDF','r','客戶技術資料，多有保密約定'],
+    ['熱處理爐溫曲線與回火參數','r','自身核心製程知識'],
+    ['公司中英文產品型錄','g','已公開'],
+    ['本週生產排程（含客戶名稱）','y','遮蔽客戶名稱後可用企業版 AI'],
+    ['員工健檢報告','r','特種個資'],
+    ['已購買之 ISO 898-1 標準全文 PDF','y','受授權條款限制，不宜整份上傳'],
+    ['客戶詢價 Email（含聯絡人姓名、電話）','y','遮蔽個資與客戶名稱後可用'],
+    ['新開發自攻螺絲之模具設計圖','r','未公開之設計'],
+    ['官網已發布之新聞稿','g','已公開'],
+    ['MES 停機紀錄匯出（無客戶資料）','y','內部營運資料']]);
+classify('ex-safe',{r:'不可',y:'去識別',g:'可以'},[
+    ['客戶聯絡人的姓名與手機號碼','r','客戶個資'],
+    ['員工薪資表','r','員工薪資屬敏感個資'],
+    ['ERP 的登入帳號與密碼','r','帳號密碼'],
+    ['串接系統用的 API 金鑰','r','API 金鑰'],
+    ['本季尚未公布的營收與毛利','r','未公開營運數據'],
+    ['客戶詢價 Email（遮掉公司名、人名、電話後）','y','去識別化後只剩規格與需求'],
+    ['本週生產排程（去掉客戶名稱）','y','內部資料，去識別化後可用'],
+    ['官網的產品型錄','g','已公開'],
+    ['已發布的新聞稿與展覽資訊','g','已公開'],
+    ['網路上找到的公開產業報告','g','公開資料，但輸出仍要查核來源']]);
+
+/* ── 演練：Claude 三模式測驗 ── */
+(function(){
+  const root=$('#ex-mode');if(!root)return;
+  const Q=[['我主要需要的是寫作、摘要、查資料與回答問題','chat'],
+    ['我常要整理整個資料夾的檔案，或批次處理表單、收據','cowork'],
+    ['我要定期產出報告或簡報，希望 AI 直接交出完成品','cowork'],
+    ['我要寫程式、除錯，或把 AI 串進 ERP／報表系統','code'],
+    ['我需要的多是即時討論、發想與改寫','chat'],
+    ['我的工作常要跨多個檔案彙整資料','cowork']];
+  const MODE={chat:['Chat','寫作、摘要、查資料與即時討論；免費版即可開始。'],
+    cowork:['Cowork','替你整理資料夾、批次處理檔案，直接做出報告與簡報（已整合進 Claude 對話，付費方案優先開放）。'],
+    code:['Code','開發、除錯、部署，以及與 ERP／報表系統串接；技術問答與文件撰寫搭配 Chat。']};
+  const MODEL={'一般文書、摘要與企劃':'先用 <b>Claude Sonnet 5.5</b>（免費版即可使用 Sonnet 與 Haiku）',
+    '需要深度分析或多步驟':'切換至 <b>Claude Opus 5.5</b>（多數工作已達 Fable 5.1 水準，成本較 Opus 5 低約 40%）',
+    '高難度、長時間執行':'進階選項 <b>Claude Fable 5.1</b>（Pro 用戶須以使用額度另行支付；Max 方案可將每週額度的 50% 用於 Fable）'};
+  const list=$('.qz-list',root),res=$('.qz-res',root);
+  let ans=[];
+  function draw(){
+    list.innerHTML=Q.map((q,i)=>'<div class="qz-row" data-i="'+i+'"><span>'+esc(q[0])+'</span><button data-v="1" class="'+(ans[i]===1?'on':'')+'">是</button><button data-v="0" class="'+(ans[i]===0?'on no':'')+'">否</button></div>').join('');
+    const sc={chat:0,cowork:0,code:0};Q.forEach((q,i)=>{if(ans[i]===1)sc[q[1]]++;});
+    const n=ans.filter(v=>v!==undefined).length,level=($('.chips[data-pick=level] button.on',root)||{}).textContent||'一般文書、摘要與企劃';
+    const order=Object.keys(sc).sort((a,b)=>sc[b]-sc[a]);
+    if(!n){res.innerHTML='<p class="res">點選左側的描述，右邊會告訴你該從哪個模式開始。</p><p>三種模式不是互斥的：多數人會以一種為主、另一種搭配。</p>';return;}
+    const main=order[0],sub=sc[order[1]]>0?order[1]:null;
+    res.innerHTML='<p class="res">建議主要入口</p><div class="big">'+MODE[main][0]+(sub?' ＋ '+MODE[sub][0]:'')+'</div>'
+      +'<p><b>'+MODE[main][0]+'：</b>'+MODE[main][1]+'</p>'+(sub?'<p><b>搭配 '+MODE[sub][0]+'：</b>'+MODE[sub][1]+'</p>':'')
+      +'<div class="model">模型建議：'+MODEL[level]+'</div>'
+      +(sc[main]===0?'<p>六個描述都點「否」：先從 Chat 開始，用一週再回來看。</p>':'');
+  }
+  list.onclick=e=>{const b=e.target.closest('button');if(!b)return;const i=+b.closest('.qz-row').dataset.i;ans[i]=ans[i]===+b.dataset.v?undefined:+b.dataset.v;draw();};
+  root.addEventListener('click',e=>{const b=e.target.closest('.chips[data-pick] button');if(!b)return;$$('button',b.parentNode).forEach(x=>x.classList.toggle('on',x===b));draw();});
   draw();
 })();
 
@@ -703,7 +766,9 @@ function builder(id,make,example){
   const inputs=$$('input[data-f]',root),outs=$$('[data-out]',root);
   const saved=store.get(id,{});
   inputs.forEach(i=>{if(saved[i.dataset.f]!==undefined)i.value=saved[i.dataset.f];});
-  const val=()=>{const v={};inputs.forEach(i=>v[i.dataset.f]=i.value.trim());v.$on=$$('.chips[data-multi] button.on',root).map(b=>b.textContent);return v;};
+  const val=()=>{const v={};inputs.forEach(i=>v[i.dataset.f]=i.value.trim());v.$on=$$('.chips[data-multi] button.on',root).map(b=>b.textContent);
+    $$('.chips[data-multi][data-name]',root).forEach(g=>v['$'+g.dataset.name]=$$('button.on',g).map(b=>b.textContent));
+    $$('.chips[data-pick]',root).forEach(g=>{const b=$('button.on',g);v[g.dataset.pick]=b?b.textContent:'';});return v;};
   const mark=(v,blank)=>v?'<b>'+esc(v)+'</b>':'<u>'+esc(blank)+'</u>';
   const plain=h=>{const d=document.createElement('div');d.innerHTML=h;return d.textContent;};
   function draw(){
@@ -717,6 +782,7 @@ function builder(id,make,example){
     const chips=b.closest('.chips');
     if(chips&&chips.dataset.multi!==undefined){b.classList.toggle('on');draw();}
     else if(chips&&chips.dataset.for){$('input[data-f='+chips.dataset.for+']',root).value=b.textContent;draw();}
+    else if(chips&&chips.dataset.pick){$$('button',chips).forEach(x=>x.classList.toggle('on',x===b));draw();}
     else if(b.dataset.copy){const o=$('[data-out='+b.dataset.copy+']',root);copy(plain(o.innerHTML),o);}
     else if(b.dataset.act==='example'){inputs.forEach(i=>{if(example[i.dataset.f]!==undefined)i.value=example[i.dataset.f];});draw();}
     else if(b.dataset.act==='clear'){inputs.forEach(i=>i.value=i.dataset.d||'');draw();}
@@ -732,6 +798,20 @@ builder('ex-compete',(v,m)=>{
 },{role:'資深產業分析師'});
 builder('ex-market',(v,m)=>({main:'我們是一間'+m(v.a,'______')+'的製造商，產品具備'+m(v.b,'______')+'等功能和'+m(v.c,'______')+'特色。產品主要應用於'+m(v.d,'__________')+'，過去我們主要銷售市場涵蓋'+m(v.e,'__________')+'。請幫我整理與分析'+m(v.f,'______')+'這個產品在全球的前十名市場規模。'}),
   {a:'汽車扣件',b:'高強度、耐腐蝕',c:'輕量化',d:'汽車底盤與引擎系統',e:'北美與歐洲',f:'汽車用高強度螺栓'});
+
+builder('ex-image',(v,m)=>({
+  main:'請生成一張圖：主體是'+m(v.sub,'＿＿（主體）')+'，場景在'+m(v.scene,'＿＿（場景）')+'，風格為'+m(v.style,'＿＿（風格）')+'，燈光是'+m(v.light,'＿＿（燈光）')+'，構圖採'+m(v.comp,'＿＿（構圖）')+'。請維持主體的細節正確、畫面乾淨，不要出現文字。',
+  ext:'請以上一張圖的'+m(v.sub,'主體')+'為角色設定圖，保持外觀、材質與'+m(v.style,'風格')+'完全一致，再生成 3 張不同場景的圖：生產線上、出貨包裝中、裝配在成品上。'}),
+  {sub:'一顆 M12 高強度六角螺栓與配套螺帽',scene:'潔淨的現代化扣件廠品檢台上',style:'寫實商品攝影',light:'柔和的攝影棚側光',comp:'45 度俯視特寫、背景虛化'});
+builder('ex-research',(v,m)=>{
+  const qs=v.$q.length?v.$q.map((q,i)=>'（'+(i+1)+'）<b>'+esc(q)+'</b>').join('；'):'<u>請至少點選一個問題</u>';
+  return {main:'請針對「'+m(v.topic,'研究主題')+'」進行深層研究。我想知道：'+qs+'。請以'+m(v.form,'決策摘要＋數據表格')+'呈現，每個數據都要附上來源與年份；研究範圍以最近三年為主，最後給出對台灣扣件廠的具體建議，而不是技術說明。',
+    ext:'請根據所有來源，列出「'+m(v.topic,'研究主題')+'」最重要的 5 個洞察，每一條都標注來源；最後附一段 150 字以內、給經營層看的執行摘要。'};
+},{topic:'北美汽車產業高強度螺栓需求'});
+builder('ex-cowork',(v,m)=>({
+  main:(v.ask.indexOf('先')===0?'請先運用 AskUserQuestion 工具，向我收集足夠的背景資訊後再開始執行。\n':'')
+    +'請依「簡報工作區」資料夾裡的參考資料、數據與公司 Logo，製作一份 '+m(v.pages,'＿＿')+' 頁、可直接在 PowerPoint 編輯的簡報（.pptx）。\n主題：'+m(v.topic,'＿＿＿＿')+'\n目標對象：'+m(v.aud,'＿＿')+'\n視覺風格：'+m(v.style,'＿＿＿＿')+'\n最終目的：'+m(v.goal,'＿＿')+'\n完成後把檔案存在同一個資料夾，並列出每一頁的標題讓我確認。'}),
+  {pages:'20',topic:'2026 年度品質改善成果',aud:'經營層',style:'深藍與橘色、使用公司 Logo、字體清楚',goal:'年度報告'});
 
 /* ── 啟動 ── */
 const q=new URLSearchParams(location.search);

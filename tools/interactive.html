@@ -65,7 +65,7 @@
 <!--@86-->
 <section class="s ix" id="ex-survey">
 <div class="ix-wrap">
-  <div class="ix-ey">第四部份｜實作演練 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
+  <div class="ix-ey">第三部份｜ChatGPT 市場調查分析實作 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
   <h2 class="ix-h">實作演練：進行市場調查分析報告</h2>
   <div class="ix-body">
     <div class="pb-grid">
@@ -104,7 +104,7 @@
 <!--@87-->
 <section class="s ix" id="ex-compete">
 <div class="ix-wrap">
-  <div class="ix-ey">第四部份｜實作演練 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
+  <div class="ix-ey">第三部份｜ChatGPT 市場調查分析實作 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
   <h2 class="ix-h">實作演練：市場競爭分析</h2>
   <div class="ix-body">
     <div class="pb-grid">
@@ -143,7 +143,7 @@
 <!--@88-->
 <section class="s ix" id="ex-market">
 <div class="ix-wrap">
-  <div class="ix-ey">第四部份｜實作演練 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
+  <div class="ix-ey">第三部份｜ChatGPT 市場調查分析實作 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
   <h2 class="ix-h">實作演練：全球市場規模分析</h2>
   <div class="ix-body">
     <div class="pb-grid">
@@ -174,6 +174,166 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+</section>
+
+<!--@409.2-->
+<section class="s ix" id="ex-image">
+<div class="ix-wrap">
+  <div class="ix-ey">第六部份｜Gemini 生圖 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
+  <h2 class="ix-h">演練：用萬能公式寫一段生圖提示詞</h2>
+  <div class="ix-body">
+    <div class="pb-grid">
+      <div class="card pb-form">
+        <div class="lab">主體 + 場景 + 風格 + 燈光 + 構圖，填好右側即時組成提示詞</div>
+        <label class="fld"><span>① 主體 <small>（要畫什麼）</small></span><input data-f="sub" placeholder="例如：一顆 M12 高強度六角螺栓與配套螺帽" autocomplete="off"></label>
+        <label class="fld"><span>② 場景</span><input data-f="scene" placeholder="例如：扣件廠的品檢台上" autocomplete="off"></label>
+        <label class="fld"><span>③ 風格 <small>（點下方或自行輸入）</small></span><input data-f="style" placeholder="例如：寫實商品攝影" autocomplete="off"></label>
+        <div class="chips" data-for="style"><button>寫實商品攝影</button><button>扁平化向量風</button><button>3D 渲染動畫風</button><button>賽璐璐動畫風</button><button>等距插畫</button></div>
+        <div class="row2">
+          <label class="fld"><span>④ 燈光</span><input data-f="light" placeholder="例如：柔和的攝影棚側光" autocomplete="off"></label>
+          <label class="fld"><span>⑤ 構圖</span><input data-f="comp" placeholder="例如：45 度俯視特寫" autocomplete="off"></label>
+        </div>
+        <div class="foot">
+          <button class="btn ghost sm" data-act="example">帶入扣件範例</button>
+          <button class="btn ghost sm" data-act="clear">清空</button>
+          <span>貼到 Gemini，選「思考型」模型生成</span>
+        </div>
+      </div>
+      <div class="pb-right">
+        <div class="promptbox">
+          <div class="lab">生圖提示詞 <button class="btn sm" data-copy="main">複製</button><a class="btn sm" href="https://gemini.google.com/" target="_blank" rel="noopener" style="text-decoration:none">開啟 Gemini ↗</a></div>
+          <p class="out" data-out="main"></p>
+        </div>
+        <div class="promptbox" style="background:#EFE3D3;color:#15233A;border:1px solid #C2610F">
+          <div class="lab" style="color:#A3500C">延伸｜風格一致性（角色設定圖） <button class="btn sm" data-copy="ext" style="background:#15233A;border-color:#15233A;color:#F5F2EC">複製</button></div>
+          <p class="out ext" data-out="ext" style="font-size:19px;line-height:29px;font-weight:400"></p>
+        </div>
+        <div class="card pb-note1"><span class="lab">提醒</span>不知道怎麼下提示詞時，先問 AI「如何下提示詞生成圖片」；要做資訊圖表時，先把資料整理成 YAML 格式再交給它。</div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!--@439.2-->
+<section class="s ix" id="ex-research">
+<div class="ix-wrap">
+  <div class="ix-ey">第六部份｜Gemini × Gemini Notebook 市場研究 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
+  <h2 class="ix-h">演練：為你的市場研究寫第 1 步與第 7 步的提示詞</h2>
+  <div class="ix-body">
+    <div class="pb-grid">
+      <div class="card pb-form">
+        <div class="lab">換成你想研究的題目</div>
+        <label class="fld"><span>研究主題</span><input data-f="topic" placeholder="例如：北美汽車產業高強度螺栓需求" autocomplete="off"></label>
+        <div class="chips" data-for="topic"><button>北美汽車產業高強度螺栓需求</button><button>歐洲離岸風電用扣件市場</button><button>東南亞建築用扣件通路</button><button>航太扣件的認證與供應鏈</button></div>
+        <div class="fld"><span>想知道的問題 <small>（可點選增減）</small></span>
+          <div class="chips" data-multi data-name="q">
+            <button class="on">目前主要應用與成長領域</button><button class="on">主要供應國與價格帶</button><button class="on">進口關稅與認證要求</button><button>主要競爭者與其優勢</button><button>客戶的採購決策流程</button><button class="on">台灣扣件廠應如何切入</button>
+          </div>
+        </div>
+        <div class="fld"><span>答案形式</span>
+          <div class="chips" data-pick="form"><button class="on">決策摘要＋數據表格</button><button>條列重點</button><button>完整研究報告</button></div>
+        </div>
+        <div class="foot">
+          <button class="btn ghost sm" data-act="clear">清空</button>
+          <span>第 1 步貼到 Gemini Deep Research；第 7 步貼到 Gemini Notebook</span>
+        </div>
+      </div>
+      <div class="pb-right">
+        <div class="promptbox">
+          <div class="lab">第 1 步｜Deep Research 提示詞 <button class="btn sm" data-copy="main">複製</button><a class="btn sm" href="https://gemini.google.com/" target="_blank" rel="noopener" style="text-decoration:none">開啟 Gemini ↗</a></div>
+          <p class="out" data-out="main" style="font-size:20px;line-height:31px"></p>
+        </div>
+        <div class="promptbox" style="background:#EFE3D3;color:#15233A;border:1px solid #C2610F">
+          <div class="lab" style="color:#A3500C">第 7 步｜Gemini Notebook 提取洞察 <button class="btn sm" data-copy="ext" style="background:#15233A;border-color:#15233A;color:#F5F2EC">複製</button></div>
+          <p class="out ext" data-out="ext" style="font-size:19px;line-height:29px;font-weight:400"></p>
+        </div>
+        <div class="card pb-note1"><span class="lab">說明</span>第 1 步要寫清楚研究範圍、使用情境與期望的答案形式；第 7 步的重點是「跨來源整合、每條洞察標注來源」。</div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!--@518.2-->
+<section class="s ix" id="ex-mode">
+<div class="ix-wrap">
+  <div class="ix-ey">第七部份｜單元二 Claude 三模式 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
+  <h2 class="ix-h">演練：你的工作適合 Chat、Cowork 還是 Code？</h2>
+  <div class="ix-body">
+    <div class="qz-grid">
+      <div class="card qz-form">
+        <div class="lab">六個描述，符合你工作的就點「是」</div>
+        <div class="qz-list"></div>
+        <div class="lab" style="margin-top:4px">你的任務多半是</div>
+        <div class="chips" data-pick="level"><button class="on">一般文書、摘要與企劃</button><button>需要深度分析或多步驟</button><button>高難度、長時間執行</button></div>
+      </div>
+      <div class="qz-right">
+        <div class="card qz-res"></div>
+        <div class="card pb-note1"><span class="lab">扣件企業對應</span>經營者與廠長以 Chat 為主，搭配 Cowork 彙整月報；業務／採購／行政以 Chat＋Cowork 處理詢價、報價與請購文件；資訊人員可評估 Claude Code 串接 ERP 報表。</div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!--@535.2-->
+<section class="s ix" id="ex-cowork">
+<div class="ix-wrap">
+  <div class="ix-ey">第七部份｜單元五 Cowork 簡報實作 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
+  <h2 class="ix-h">演練：用五要素寫一段交給 Cowork 的簡報指令</h2>
+  <div class="ix-body">
+    <div class="pb-grid">
+      <div class="card pb-form">
+        <div class="lab">預計頁數、主題、目標對象、視覺風格、最終目的</div>
+        <div class="row2">
+          <label class="fld"><span>① 預計頁數</span><input data-f="pages" placeholder="例如：20" autocomplete="off"></label>
+          <label class="fld"><span>② 主題</span><input data-f="topic" placeholder="例如：2026 年度品質改善成果" autocomplete="off"></label>
+        </div>
+        <label class="fld"><span>③ 目標對象</span><input data-f="aud" placeholder="例如：經營層" autocomplete="off"></label>
+        <div class="chips" data-for="aud"><button>經營層</button><button>客戶</button><button>新進員工</button><button>外部稽核人員</button></div>
+        <label class="fld"><span>④ 視覺風格</span><input data-f="style" placeholder="例如：深藍與橘色、使用公司 Logo、字體清楚" autocomplete="off"></label>
+        <label class="fld"><span>⑤ 最終目的</span><input data-f="goal" placeholder="例如：年度報告" autocomplete="off"></label>
+        <div class="chips" data-for="goal"><button>提案</button><button>教學</button><button>年度報告</button><button>客戶稽核</button></div>
+        <div class="fld"><span>進階用法</span>
+          <div class="chips" data-pick="ask"><button class="on">先用 AskUserQuestion 向我提問再動工</button><button>直接開始</button></div>
+        </div>
+        <div class="foot">
+          <button class="btn ghost sm" data-act="example">帶入扣件範例</button>
+          <button class="btn ghost sm" data-act="clear">清空</button>
+        </div>
+      </div>
+      <div class="pb-right">
+        <div class="promptbox">
+          <div class="lab">Cowork 指令 <button class="btn sm" data-copy="main">複製</button></div>
+          <p class="out" data-out="main" style="font-size:20px;line-height:31px"></p>
+        </div>
+        <div class="card pb-note1"><span class="lab">提醒</span>先在桌面建立「簡報工作區」資料夾，放入參考資料、數據與 Logo，並在 Cowork 裡授權這個資料夾；產出的 .pptx 可直接用 PowerPoint 修改。</div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!--@538.2-->
+<section class="s ix" id="ex-safe">
+<div class="ix-wrap">
+  <div class="ix-ey">第七部份｜使用注意事項 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
+  <h2 class="ix-h">演練：這 10 項內容能不能貼進 Claude？</h2>
+  <div class="ix-body">
+    <div class="cl-top">
+      <div class="cl-rule r"><b>不可｜機密與憑證</b>個資、薪資、帳密、金鑰、未公開數據</div>
+      <div class="cl-rule y"><b>去識別｜內部資料</b>拿掉客戶、人名、聯絡方式後可用</div>
+      <div class="cl-rule g"><b>可以｜公開資料</b>可直接輸入，輸出仍須查核</div>
+      <div class="cl-ctl">
+        <span class="cl-score"></span>
+        <button class="btn hot" data-act="check">對答案</button>
+        <button class="btn ghost" data-act="reset">重來</button>
+      </div>
+    </div>
+    <div class="cl-list" aria-label="10 項內容分類"></div>
   </div>
 </div>
 </section>

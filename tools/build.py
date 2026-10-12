@@ -740,8 +740,8 @@ def build(src, out):
                    for f in ("interactive.html", "custom.html"))  # 各檔第一個標記之前是說明文字，丟掉
     frag = re.sub(r"@@IMG:(\w+)@@", lambda m: "data:image/jpeg;base64," + base64.b64encode(
         (HERE / "images" / (m.group(1) + ".jpg")).read_bytes()).decode(), frag)
-    inter = {int(m.group(1)): m.group(2).strip()
-             for m in re.finditer(r"<!--@(\d+)-->(.*?)(?=<!--@\d+-->|\Z)", frag, re.S)}
+    inter = {(float(m.group(1)) if "." in m.group(1) else int(m.group(1))): m.group(2).strip()
+             for m in re.finditer(r"<!--@([\d.]+)-->(.*?)(?=<!--@[\d.]+-->|\Z)", frag, re.S)}
 
     images, img_css, sections, pages = {}, [], [], {}
     for i, z, f, k in items:
@@ -771,6 +771,9 @@ def build(src, out):
             texts = sorted((e for e in els if "paras" in e), key=lambda e: -e["h"])
             title = plain(texts[0]).replace("\n", " ") if texts else "第 %d 頁" % i
         if i in inter:
+            h2 = re.search(r'<h2 class="ix-h">(.*?)</h2>', inter[i])
+            if h2:
+                title = re.sub(r"<[^>]+>", "", h2.group(1))
             sections.append(inter[i].replace("<section ", '<section data-src="%d" data-t="%s" ' % (i, html.escape(title)), 1))
             continue
         for e in els:

@@ -41,6 +41,11 @@ def reorder(keys):
     out = [k for k in keys if k not in skills and k not in work]
     pos = out.index(95) + 1
     out[pos:pos] = skills + work
+    # 三個市場調查演練（原 86–88）搬到第三部份「運用 ChatGPT 進行市場調查分析」章名頁之後
+    mk = [k for k in out if k in (86, 87, 88)]
+    out = [k for k in out if k not in mk]
+    pos = out.index(306) + 1
+    out[pos:pos] = mk
     return out
 
 
@@ -70,6 +75,19 @@ def auto_roles(els, h):
     for e in els:
         if e["role"] != "source":
             e["y"] += dy
+    # 左右邊界對齊主簡報的版心（85.3–1194.4）：1600 寬的簡報換算後偏左
+    body = [e for e in els if e["role"] not in ("eyebrow", "source")]
+    x0, x1 = min(e["x"] for e in body), max(e["x"] + e["w"] for e in body)
+    if x1 - x0 > 600 and (abs(x0 - 85.3) > 3 or abs(x1 - 1194.4) > 3):
+        f = (1194.4 - 85.3) / (x1 - x0)
+        for e in body:
+            if "paras" not in e and abs(e["w"] - e["h"]) <= 2:  # 圓形只移動，不變形
+                e["x"] = 85.3 + (e["x"] + e["w"] / 2 - x0) * f - e["w"] / 2
+            else:
+                e["x"] = 85.3 + (e["x"] - x0) * f
+                e["w"] *= f
+                if "cols" in e:
+                    e["cols"] = [c * f for c in e["cols"]]
     return t
 
 
@@ -131,7 +149,8 @@ DIVIDERS = {
 BG.update({k: NAVY for k in DIVIDERS})
 
 # 一頁拆成幾頁（原檔內容超出版面）
-DUP = {304: 2}  # 廣告文案生成：步驟一、步驟二各一頁
+DUP = {304: 2,  # 廣告文案生成：步驟一、步驟二各一頁
+       409: 2, 439: 2, 518: 2, 535: 2, 538: 2}  # 第二頁是 interactive.html 裡的互動演練
 
 # 插入簡報的內容頁沒有頁首小標：依單元補上
 EYEBROWS = [
@@ -242,6 +261,9 @@ def apply(i, els, h):
         for pat, z in ((r"^於右側「工作室」", 18.5), (r"^Gemini Notebook 沒有外部知識", 20.0)):
             for r in one(pat)["paras"][0]["runs"]:
                 r["z"] = z
+    if i == 429:  # 實戰三：第 2 張卡的字稍微縮小才放得進卡片
+        for r in one(r"^登入 Gemini Notebook")["paras"][0]["runs"]:
+            r["z"] *= 0.9
     if i == 501:  # Claude 簡報的第一頁改成第七部份章名頁
         h.set_text(one(r"單元一$")["paras"][0], "第七部份")
         h.set_text(one(r"Claude AI 核心功能導覽")["paras"][0], "Claude 功能與使用全攻略")
