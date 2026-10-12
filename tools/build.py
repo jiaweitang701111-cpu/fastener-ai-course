@@ -28,7 +28,8 @@ NS = {
 }
 RID = "{%s}id" % NS["r"]
 REMBED = "{%s}embed" % NS["r"]
-EMU = 9525.0  # EMU per px（13.333in 寬 = 1280px）
+EMU = 9525.0  # EMU per px（13.333in 寬 = 1280px）；非 1280 寬的來源簡報會在 build() 裡換算
+FS = 1.0  # 字級縮放（1600 寬的來源簡報 = 0.8）
 PT = 4 / 3  # px per pt
 
 SHIFT_UP = 50  # 內容頁整體上移（頁首貼近上緣），讓出更多內容高度
@@ -80,14 +81,14 @@ def color(node, path="a:solidFill/a:srgbClr"):
 
 
 def parse_run(rpr, recolor):
-    r = {"z": 24.0, "b": False, "i": False, "u": False, "spc": 0, "color": None, "serif": False, "href": None}
+    r = {"z": 24.0 * FS, "b": False, "i": False, "u": False, "spc": 0, "color": None, "serif": False, "href": None}
     if rpr is not None:
         if rpr.get("sz"):
-            r["z"] = int(rpr.get("sz")) / 100 * PT
+            r["z"] = int(rpr.get("sz")) / 100 * PT * FS
         r["b"] = rpr.get("b") == "1"
         r["i"] = rpr.get("i") == "1"
         r["u"] = rpr.get("u") not in (None, "none")
-        r["spc"] = int(rpr.get("spc") or 0) / 100 * PT
+        r["spc"] = int(rpr.get("spc") or 0) / 100 * PT * FS
         c = color(rpr)
         r["color"] = recolor.get(c.upper(), c) if c else None
         latin = rpr.find("a:latin", NS)
@@ -117,7 +118,8 @@ def parse_paras(txbody, rels, recolor, scale=1):
             bu = ppr.find("a:buChar", NS)
             if bu is not None:
                 para["bu"] = (bu.get("char"), int(ppr.get("marL", 0)) / EMU)
-        para["lh"] *= scale
+        para["lh"] *= scale * FS
+        para["sb"] *= FS
         for ch in p:
             tag = etree.QName(ch).localname
             if tag == "r":
@@ -687,10 +689,22 @@ def render(e, images, static):
 def build(src, out):
     import patches
 
-    z = zipfile.ZipFile(src)
-    order = etree.fromstring(z.read("ppt/presentation.xml")).findall("p:sldIdLst/p:sldId", NS)
-    prels = {r.get("Id"): r.get("Target") for r in etree.fromstring(z.read("ppt/_rels/presentation.xml.rels"))}
-    files = ["ppt/" + prels[s.get(RID)] for s in order]
+    def open_deck(path):
+        """回傳 (zip, 投影片檔名清單, 版面寬度相對 1280 的倍率)"""
+        z = zipfile.ZipFile(path)
+        pres = etree.fromstring(z.read("ppt/presentation.xml"))
+        order = pres.findall("p:sldIdLst/p:sldId", NS)
+        prels = {r.get("Id"): r.get("Target") for r in etree.fromstring(z.read("ppt/_rels/presentation.xml.rels"))}
+        k = int(pres.find("p:sldSz", NS).get("cx")) / (1280 * 9525.0)
+        return z, ["ppt/" + prels[s.get(RID)] for s in order], k
+
+    z, files, k = open_deck(src)
+    # (頁碼, zip, 投影片, 倍率)；插入的簡報（patches.INSERTS）頁碼從 base+1 起算，接在主簡報的 after 頁之後
+    items = [(i, z, f, k) for i, f in enumerate(files, 1)]
+    for after, path, base in getattr(patches, "INSERTS", []):
+        iz, ifiles, ik = open_deck(Path(src).parent / path)
+        pos = next(n for n, it in enumerate(items) if it[0] == after) + 1
+        items[pos:pos] = [(base + j, iz, f, ik) for j, f in enumerate(ifiles, 1)]
 
     # 互動演練頁與手工重新設計的頁：都是以 <!--@原頁碼--> 標示、整頁取代 PPT 的同一頁
     frag = "".join(re.sub(r"^.*?(?=<!--@\d+-->)", "", (HERE / f).read_text(encoding="utf-8"), flags=re.S)
@@ -701,9 +715,10 @@ def build(src, out):
              for m in re.finditer(r"<!--@(\d+)-->(.*?)(?=<!--@\d+-->|\Z)", frag, re.S)}
 
     images, img_css, sections, pages = {}, [], [], {}
-    for i, f in enumerate(files, 1):
+    for i, z, f, k in items:
         if i in patches.DROP:
             continue
+        globals()["EMU"], globals()["FS"] = 9525.0 * k, 1 / k
         pages[i] = len(sections) + 1
         rel_path = f.replace("slides/", "slides/_rels/") + ".rels"
         rels = {}
@@ -718,6 +733,8 @@ def build(src, out):
                 patches.apply(i, els, sys.modules[__name__])
             except AssertionError as err:
                 raise SystemExit("第 %d 頁的調整失敗：%s" % (i, err))
+            if t is None:  # 沒有標題版面配置的頁：patches 可以自行指定 role="title"
+                t = next((e for e in els if e["role"] == "title"), None)
         title = plain(t).replace("\n", " ") if t else ""
         if not title:
             texts = sorted((e for e in els if "paras" in e), key=lambda e: -e["h"])
@@ -726,11 +743,14 @@ def build(src, out):
             sections.append(inter[i].replace("<section ", '<section data-src="%d" data-t="%s" ' % (i, html.escape(title)), 1))
             continue
         for e in els:
-            if e["tag"] == "pic" and e["img"] not in images:
-                data = z.read("ppt/" + e["img"][3:])
-                images[e["img"]] = "im%d" % len(images)
-                img_css.append(".%s{background:url(data:image/png;base64,%s) center/100%% 100%% no-repeat}"
-                               % (images[e["img"]], base64.b64encode(data).decode()))
+            if e["tag"] == "pic":
+                key = (id(z), e["img"])
+                if key not in images:
+                    data = z.read("ppt/" + e["img"][3:])
+                    images[key] = "im%d" % len(images)
+                    img_css.append(".%s{background:url(data:image/png;base64,%s) center/100%% 100%% no-repeat}"
+                                   % (images[key], base64.b64encode(data).decode()))
+                e["img"] = key
         static = bg.upper() != "#F5F2EC" or t is None
         attrs = "" if static else analyze(els)
         if attrs and i in patches.TMAX:
@@ -744,8 +764,8 @@ def build(src, out):
             .replace("<!--SLIDES-->", "\n".join(sections))
             .replace("/*QR_LIB*/", (HERE / "qrcode.min.js").read_text(encoding="utf-8")))
     Path(out).write_text(page, encoding="utf-8")
-    print("頁數: %d（原 %d 頁，刪除原第 %s 頁），檔案: %.0f KB" % (
-        len(sections), len(files), "、".join(map(str, sorted(patches.DROP))), len(page.encode("utf-8")) / 1024))
+    print("頁數: %d（主簡報 %d 頁＋插入 %d 頁，刪除原第 %s 頁），檔案: %.0f KB" % (
+        len(sections), len(files), len(items) - len(files), "、".join(map(str, sorted(patches.DROP))), len(page.encode("utf-8")) / 1024))
     print("互動／重新設計頁: " + ", ".join("原 p.%d → 新 p.%d" % (k, pages[k]) for k in sorted(inter) if k in pages))
     return pages
 

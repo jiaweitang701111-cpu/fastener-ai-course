@@ -13,6 +13,11 @@ DROP = {18, 69, 73, 108, 111, 115}
 # 2026-10-13：第二部份「AI倫理、資安與法規」整段拿掉（原第 25–59 頁，含演練 36/52、參考答案 37/52、手工頁 32/46）
 DROP |= set(range(25, 60))
 
+# 插入的其他簡報：(接在主簡報第幾頁之後, 檔名（與主簡報同資料夾）, 頁碼基數)；該簡報第 j 頁在這裡的頁碼是 基數+j
+INSERTS = [
+    (22, "生成式AI與智慧營運人才培訓授課簡報完成版本(AI 三功能的本質區分).pptx", 200),  # 201：生成式 AI 三大功能
+]
+
 # 個別頁的放大上限（1.35 是預設；字被嫌太大的頁壓低）
 TMAX = {89: 0.7, 96: 0.65, 101: 0.5}
 
@@ -44,6 +49,24 @@ def apply(i, els, h):
     if i in (20, 21):  # 來源列維持灰色
         for r in (r for p in role("source")["paras"] for r in p["runs"]):
             r["color"] = DARK
+
+    if i == 201:  # 插入頁：常見的生成式 AI 三大功能（1600×900 來源，已換算成 1280 寬）
+        t = one("常見的 生成式 AI 三大功能")
+        t["role"] = "title"
+        for e in els:
+            e["y"] += 75  # 這份簡報的標題貼近上緣，先往下挪到與主簡報相同的位置（標題 y≈129）
+        for r in t["paras"][0]["runs"]:  # 標題改成主簡報的深藍襯線體
+            r["color"], r["serif"], r["z"] = NAVY, True, 40.0
+        ey = copy.deepcopy(t)  # 補上鄰頁都有的頁首小標
+        ey.update(role="eyebrow", y=85.3, h=25.1, x=85.3, w=1142.7)
+        h.set_text(ey["paras"][0], "第一部份｜AI工具指南")
+        ey["paras"][0]["lh"] = 22.4
+        for r in ey["paras"][0]["runs"]:
+            r.update(color="#A3500C", serif=False, z=16.0, b=True, spc=1.33)
+        els.insert(0, ey)
+        # 第三張卡的文字框在原檔只有半寬，字會折成很多行：改成跟前兩張一樣寬
+        for pat, ref in (("功能：AI 生成", "功能：AI 搜索"), ("依資料重組", "從全球網路")):
+            one(pat)["w"] = one(ref)["w"]
 
     if i == 1:
         e = one(r"^講者：")
