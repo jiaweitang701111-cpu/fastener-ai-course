@@ -197,7 +197,8 @@ def apply(i, els, h):
     elif 300 <= i < 600:  # 插入的三份簡報的內容頁
         if 300 <= i < 500:
             restyle(els, BLUE_MAP)
-            els[:] = [e for e in els if "paras" in e or not (e["w"] >= 1200 and e["h"] >= 680)]  # 整頁的背景圖／底色
+            # 整頁的背景圖／底色、頁首的整幅裝飾橫幅圖
+            els[:] = [e for e in els if "paras" in e or not (e["w"] >= 1200 and (e["h"] >= 680 or (e["tag"] == "pic" and e["y"] <= 0)))]
         t = auto_roles(els, h)
         if i in (304.1, 304.2):  # 小標的框太窄，字會折行
             for e in many(r"^(先了解廣告文案|依據關鍵要素)"):
@@ -226,13 +227,16 @@ def apply(i, els, h):
             ey["role"] = "eyebrow"
             els.insert(0, ey)
         elif 500 <= i < 600:
+            unit = {512: "單元一｜Claude AI 核心功能", 523: "單元三｜模型與方案", 524: "單元三｜模型與方案", 525: "單元三｜模型與方案",
+                    526: "單元三｜模型與方案", 527: "單元三｜模型與方案", 538: "單元六｜使用注意事項", 539: "單元六｜使用注意事項"}
+            if i in unit:  # 原本是描述句的頁首小標，改成單元名稱，跟其他頁一致
+                h.set_text(ey["paras"][0], unit[i])
             for para in ey["paras"]:
                 for r in para["runs"]:
                     if r["text"].strip():
                         r["text"] = "第七部份｜" + r["text"]
                         break
-    if i == 310:  # 頁首的裝飾橫幅圖拿掉，內容往上靠
-        els[:] = [e for e in els if not (e["tag"] == "pic" and e["w"] >= 1200)]
+    if i == 310:  # 頁首的裝飾橫幅圖已拿掉，內容往上靠
         body = [e for e in els if not e["role"]]
         dy = min(e["y"] for e in body) - 200
         for e in body:
