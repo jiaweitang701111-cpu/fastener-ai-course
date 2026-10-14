@@ -91,6 +91,23 @@ def auto_roles(els, h):
     return t
 
 
+def bullets(e, items, gap=6, char="•", ind=20):
+    """文字框改成圓點條列，沿用原本的字級與顏色"""
+    base = e["paras"][0]
+    e["paras"], e["free"] = [], True
+    for k, item in enumerate(items):
+        para = copy.deepcopy(base)
+        last = dict(para["runs"][-1] if para["runs"][-1]["text"].strip() else para["runs"][0])
+        last["text"] = item
+        para["runs"] = [last]
+        para["sb"], para["hang"], para["bu"] = (gap if k else 0), None, (char, ind)
+        e["paras"].append(para)
+
+
+def runs_of(e):
+    return [r for para in e["paras"] for r in para["runs"]]
+
+
 def mk_text(like, x, y, w, h, lines, z, color, serif=False, b=True, lh=None):
     """用現有文字元素當樣板，造一個新的文字框（lines：每行一段）"""
     e = copy.deepcopy(like)
@@ -161,7 +178,7 @@ EYEBROWS = [
 ]
 
 # 個別頁的放大上限（1.35 是預設；字被嫌太大的頁壓低）
-TMAX = {89: 0.7, 96: 0.65, 101: 0.5}
+TMAX = {89: 0.7, 96: 0.65, 101: 0.5, 422: 0, 429: 0, 433: 0, 435: 0.3, 508: 0.55, 439.1: 0.6}
 
 CREAM, AMBER = "#F5F2EC", "#F0A35E"
 
@@ -268,11 +285,193 @@ def apply(i, els, h):
     if i == 429:  # 實戰三：第 2 張卡的字稍微縮小才放得進卡片
         for r in one(r"^登入 Gemini Notebook")["paras"][0]["runs"]:
             r["z"] *= 0.9
-    if i == 501:  # Claude 簡報的第一頁改成第七部份章名頁
-        h.set_text(one(r"單元一$")["paras"][0], "第七部份")
-        h.set_text(one(r"Claude AI 核心功能導覽")["paras"][0], "Claude 功能與使用全攻略")
-        h.set_text(one(r"三大核心特色、Research")["paras"][0],
-                   "單元一 Claude AI 核心功能｜單元二 Chat、Cowork、Code 三模式｜單元三 模型與方案怎麼選｜單元四 Cowork 數位同事｜單元五 用 Cowork 做簡報｜使用注意事項")
+    if i == 501:  # Claude 簡報的第一頁：套用主簡報封面的版面（10/19 另一天授課）
+        like = one(r"Claude AI 核心功能導覽")
+        bar = {"tag": "sp", "role": "", "x": 85.3, "y": 247.7, "w": 106.7, "h": 5.3, "ph": None, "prst": "roundRect", "adj": 50000,
+               "fill": AMBER, "stroke": None, "sw": 1.0, "arrow": False}
+        line = {"tag": "sp", "role": "", "x": 85.3, "y": 439, "w": 1030, "h": 0, "ph": None, "prst": "line", "adj": 16667,
+                "fill": None, "stroke": "#3A4A63", "sw": 1.33, "arrow": False}
+        ey = mk_text(like, 85.3, 279.7, 1142.7, 34.4, ["金屬扣件AI智慧品保視覺檢測與決策應用班"], 22.7, AMBER, lh=31.7)
+        ey["paras"][0]["runs"][0]["spc"] = 2.67
+        t = mk_text(like, 85.3, 338, 1142.7, 76.3, ["Claude 功能與使用全攻略"], 64, CREAM, serif=True, lh=73.6)
+        who = mk_text(like, 85.3, 457.7, 1030, 104, ["講者：國立澎湖科技大學 行銷與物流管理系 唐嘉偉", "授課日期：115/10/19", "授課地點：大台南會展中心"],
+                      18.7, CREAM, b=False, lh=32)
+        for para in who["paras"][1:]:
+            para["sb"] = 5.3
+            para["runs"][0]["color"] = AMBER
+        who["boost"] = 1.7
+        els[:] = [bar, ey, t, line, who]
+
+    if isinstance(i, float) and int(i) != 304 and round(i % 1, 1) == 0.1:
+        i = int(i)  # DUP 拆出的第一頁（409.1 等）沿用整數頁碼的調整
+
+    if i == 413:  # Canvas 功能總覽：三張卡片的字距、行距拉開
+        for e in many(r"^(協助撰寫|依大綱|以自然語言)"):
+            e["y"] += 22
+            for para in e["paras"]:
+                para["lh"] = round(para["lh"] * 1.3, 1)
+    if i == 418:  # Apps Script 部署六步驟：(A)(B)(C) → (1)(2)(3)，字縮小並對齊
+        for e in els:
+            if "paras" not in e or e["role"]:
+                continue
+            for para in e["paras"]:
+                for r in para["runs"]:
+                    r["text"] = re.sub(r"\(([ABC])\)", lambda m: "(%d)" % ("ABC".index(m.group(1)) + 1), r["text"])
+                    if r["z"] > 23 and r["color"] != "#A3500C":  # 內文
+                        r["z"] = 20.0
+                    elif r["z"] > 23:  # 卡片標題
+                        r["z"] = 22.0
+            if any(re.match(r"\(1\)", para["runs"][0]["text"]) for para in e["paras"]):
+                e["w"], e["y"] = 322, e["y"] + 6
+                for k, para in enumerate(e["paras"]):
+                    para["hang"], para["sb"], para["lh"] = 1.9, (6 if k else 0), 29
+    if i == 421:  # Gemini Notebook 介面三區：三張卡片改成條列
+        bullets(one(r"^支援 PDF"), ["支援 PDF、純文字、YouTube 影片、網址、Google 雲端硬碟", "顯示文件列表，可隨時新增內容",
+                                   "整理後於問答區呈現小總結，可儲存成「記事」"])
+        bullets(one(r"^針對想深入的問題"), ["針對想深入的問題提問，AI 也會提供參考問題", "回覆以列點呈現並附上來源，方便核對原始資料",
+                                        "對話紀錄自動儲存、可刪除；共享筆記本中的聊天紀錄僅自己可見",
+                                        "「自訂」聊天：設定目標、語氣或角色，例如「Treat me like a PhD candidate」"])
+        bullets(one(r"^音訊（Podcast）"), ["音訊（Podcast）摘要、影片摘要", "心智圖、報告、學習卡、測驗", "資訊圖表、簡報、資料表格",
+                                        "依自己消化資訊的方式選擇適合的功能"])
+    if i == 422:  # 實戰教學：介面介紹：截圖縮小一點，右側卡片與底部「扣件企業對應」往上
+        pic = next(e for e in els if e["tag"] == "pic" and e["w"] > 500)
+        pic["w"], pic["h"] = round(783 * 364 / 399), 364
+        tops = {"① 新增來源": (256, 104), "② 對話提問": (372, 104), "③ 工作室產出": (488, 136)}
+        for head, (top, ch) in tops.items():
+            hd = one("^" + head)
+            dy = top + 18 - hd["y"]
+            body = min((e for e in els if "paras" in e and e is not hd and e["x"] > 900 and e["y"] > hd["y"]), key=lambda e: e["y"])
+            card = min((e for e in els if "paras" not in e and e["x"] > 900 and e["h"] > 50 and abs(e["y"] + 18 - hd["y"]) < 30), key=lambda e: e["y"])
+            bar = next(e for e in els if "paras" not in e and e["x"] > 900 and e["h"] < 12 and abs(e["y"] - card["y"]) < 6)
+            card["y"], card["h"], bar["y"] = top, ch, top - 2
+            hd["y"], body["y"], body["h"] = top + 16, top + 46, ch - 52
+            for r in runs_of(body):
+                r["z"] = 19.0
+            for para in body["paras"]:
+                para["lh"] = 27
+        box = one(r"^扣件企業對應")
+        bg = next(e for e in els if "paras" not in e and e.get("fill") == "#EFE3D3" and e["w"] > 1000)
+        icon = next((e for e in els if e["tag"] == "pic" and e["w"] < 40), None)
+        bg["y"], bg["h"] = 640, 70
+        box["y"], box["h"] = 648, 58
+        for para in box["paras"]:
+            para["lh"] = 30
+        for r in runs_of(box):
+            r["z"] = 21.0
+        if icon:
+            icon["y"] = 664
+    if i == 429:  # 實戰三：左側提示詞字級統一、右側三張卡片收緊並上移、底部提醒上移
+        prompt = one(r"^會議紀錄提示詞")
+        prompt["w"] = 662
+        for k, para in enumerate(prompt["paras"]):
+            para["lh"], para["sb"] = 29, (4 if k == 1 else 2 if k else 0)
+            para["hang"] = 1.5 if re.match(r"\d\.", para["runs"][0]["text"]) else None
+            for r in para["runs"]:
+                r["z"] = 20.0
+                if k == 0:
+                    r["z"], r["color"] = 21.0, "#A3500C"
+                elif r["color"] == "#15233A":
+                    r["b"] = False
+        for cy0, ctop, ch in ((257, 257, 84), (389, 363, 136), (561, 521, 132)):  # 原卡片上緣 → 新上緣、新高度
+            group = [e for e in els if e["x"] >= 795 and cy0 - 24 <= e["y"] <= cy0 + 62]
+            for e in group:
+                e["y"] += ctop - cy0
+            card = next(e for e in group if "paras" not in e and e["h"] > 50)
+            card["h"] = ch
+            hd = next(e for e in group if "paras" in e and e["h"] < 30 and e["y"] < ctop + 40)
+            body = next(e for e in group if "paras" in e and e is not hd and not re.match(r"^\d$", h.plain(e)))
+            body["x"], body["w"], body["y"], body["h"] = 815, 368, ctop + 54, ch - 60
+            for para in body["paras"]:
+                para["lh"] = 24
+            for r in runs_of(body):
+                r["z"] = 17.0
+        note = one(r"^人工覆核")
+        bg = next(e for e in els if "paras" not in e and e.get("fill") == "#EFE3D3" and e["w"] > 1000 and e["y"] > 600)
+        icon = next((e for e in els if e["tag"] == "pic" and e["y"] > 600), None)
+        bg["y"], bg["h"], note["y"] = 672, 54, 687
+        if icon:
+            icon["y"] = 689
+        for r in runs_of(note):
+            r["z"] = 23.0
+    if i == 430:  # 實戰四：四張卡片改成條列
+        bullets(one(r"^AI 不會直接推薦股票"), ["AI 不會直接推薦股票，而是幫你「搞懂財報到底在說什麼」，把長篇財報整理成好消化的重點摘要",
+                                          "推薦 Gemini Notebook 的原因：只根據上傳文件回答、不無中生有；可長期追蹤單一公司的財報變化"])
+        bullets(one(r"^台股："), ["台股：公開資訊觀測站下載「財務報告書」與「法說會簡報」", "美股：Google 財經搜尋個股，於「收益」分頁下載相關文件"])
+        bullets(one(r"^於筆記本左側"), ["於筆記本左側來源區上傳檔案", "建議同時上傳前一季財報，以便比較"])
+        bullets(one(r"^請 AI 扮演資深分析師"), ["請 AI 扮演資深分析師，針對營收、毛利率等關鍵指標分析", "系統產出結構清晰的財報分析報告（提示詞見下頁）"])
+    if i == 431:  # 財報分析提示詞：內文不要粗體
+        for e in many(r"^(入門版|進階版)"):
+            for para in e["paras"][1:]:
+                for r in para["runs"]:
+                    r["b"] = False
+    if i == 433:  # 先建可信資料庫：六張卡片的標題一行、內文從同一高度開始
+        for e in els:
+            if "paras" not in e or e["role"]:
+                continue
+            txt = h.plain(e)
+            if re.match(r"^(0\d |扣件企業對應)", txt):
+                e["w"], e["h"] = 322, 58
+                for r in runs_of(e):
+                    r["z"] = 19.5
+                e["paras"][0]["lh"] = 27
+            elif re.match(r"^(用途|公司簡介)", txt):
+                for k, para in enumerate(e["paras"]):
+                    para["sb"] = 6 if k else 0
+                for r in runs_of(e):
+                    r["z"] = 19.5
+                for para in e["paras"]:
+                    para["lh"] = 28
+        for card_top, body_top in ((269, 347), (505, 583)):
+            for e in els:
+                if "paras" in e and not e["role"] and re.match(r"^(用途|公司簡介)", h.plain(e)) and card_top < e["y"] < card_top + 200:
+                    e["y"] = body_top
+    if i == 435:  # 從資料到提案的 5 步驟：三欄對齊、Step 標題改深藍
+        for e in els:
+            if "paras" not in e or e["role"]:
+                continue
+            txt = h.plain(e)
+            row = int((e["y"] - 213) // 104)
+            top = 213 + row * 104
+            if txt.startswith("Step"):
+                e.update(x=185, w=330, y=top + 18, h=54, anchor="ctr")
+                for r in runs_of(e):
+                    r["z"], r["color"] = 21.0, NAVY
+            elif txt.startswith("操作"):
+                e.update(x=520, w=372, y=top + 18, h=54, anchor="ctr")
+                for r in runs_of(e):
+                    r["z"] = 19.0
+            elif txt.startswith("產出"):
+                e.update(x=898, w=290, y=top + 18, h=54, anchor="ctr")
+                for r in runs_of(e):
+                    r["z"] = 19.0
+    if i == 439:  # 8 步驟提示詞範例：兩個框收緊，底部的扣件產業案例回到版面內
+        boxes = sorted((e for e in els if "paras" not in e and e.get("fill") == "#EFE3D3"), key=lambda e: e["y"])
+        icons = sorted((e for e in els if e["tag"] == "pic"), key=lambda e: e["y"])
+        t1, t7, case = one(r"^第 1 步"), one(r"^第 7 步"), one(r"^扣件產業案例")
+        boxes[0]["y"], boxes[0]["h"] = 240, 214
+        t1["y"], t1["h"] = 248, 200
+        boxes[1]["y"], boxes[1]["h"] = 466, 150
+        t7["y"], t7["h"] = 474, 136
+        case["y"], case["h"] = 628, 56
+        for e in (t1, t7, case):
+            for para in e["paras"]:
+                para["lh"] = 30
+            for r in runs_of(e):
+                r["z"] = 20.0
+        for ic, y in zip(icons, (256, 482)):
+            ic["y"] = y
+    if i == 508:  # 擴充功能：三張卡片的「應用情境」對齊同一高度
+        for e in els:
+            if e.get("fill") == "#EFE3D3" and e["w"] < 400:
+                e["y"] = 448
+            elif "paras" in e and h.plain(e).startswith("應用情境"):
+                e["y"] = 456
+    if i == 527:  # Claude 可以生成圖片嗎：兩張卡片的內文放大
+        for e in many(r"^(與其他 AI 生圖工具|分析使用者上傳)"):
+            for para in e["paras"]:
+                para["lh"] = 38
+            for r in runs_of(e):
+                r["z"] = 24.0
 
     if i == 201:  # 插入頁：常見的生成式 AI 三大功能（1600×900 來源，已換算成 1280 寬）
         t = one("常見的 生成式 AI 三大功能")
