@@ -19,6 +19,7 @@ INSERTS = [
     (79, "生成式AI與智慧營運人才培訓授課簡報完成版本(ChatGPT).pptx", 300),  # 301–312：第三部份 ChatGPT 實作
     (109, "生成式AI與智慧營運人才培訓授課簡報完成版本(Gemini).pptx", 400),  # 401–440：第六部份 Gemini
     (128, "Claude功能與使用全攻略.pptx", 500),  # 501–540：第七部份 Claude（540 是重複的感謝頁，刪）
+    (536, "Claude新增加內容至網頁簡報.pptx", 600),  # 601–607：第七部份單元六 Claude Skills（接在 STEP 4–5 之後、使用注意事項之前）
 ]
 DROP |= {128, 540}  # 128：Skills 結語頁（依 2026-10-13 指示拿掉）
 
@@ -31,7 +32,7 @@ BLUE_MAP = {
     "#404155": "#15233A", "#000000": "#15233A", "#1B1B27": "#15233A", "#002060": "#15233A",
     "#910D0D": "#A3500C", "#C00000": "#C2610F", "#F44444": "#C2610F", "#FF0000": "#C2610F",
 }
-DECK_RECOLOR = {300: BLUE_MAP, 400: BLUE_MAP}
+DECK_RECOLOR = {300: BLUE_MAP, 400: BLUE_MAP, 600: BLUE_MAP}
 
 
 def reorder(keys):
@@ -139,6 +140,9 @@ def divider(els, eyebrow, title, desc):
 
 # 插入簡報裡的章名頁／單元頁（原本是左右各半的圖＋標題）：改成深藍章名頁
 DIVIDERS = {
+    601: ("第七部份｜單元六", "Claude Skills：雇用個人專屬的 AI 助理",
+          ["把每次都要重複交代的指令，變成可自動觸發、可重複呼叫、可分享的標準作業流程",
+           "SKILL.md：個人專屬 AI 助理的「聘書」"]),
     301: ("第三部份", "運用 ChatGPT 進行文案生成與數據分析",
           ["文案生成實作：社群媒體文案、活動企劃案、廣告文案與影音廣告腳本",
            "數據分析實作：數據圖像化、Excel 檔整理、分析與運算，以及生產資料分析的實務建議"]),
@@ -167,7 +171,7 @@ BG.update({k: NAVY for k in DIVIDERS})
 
 # 一頁拆成幾頁（原檔內容超出版面）
 DUP = {304: 2,  # 廣告文案生成：步驟一、步驟二各一頁
-       409: 2, 439: 2, 518: 2, 535: 2, 538: 2}  # 第二頁是 interactive.html 裡的互動演練
+       409: 2, 439: 2, 518: 2, 535: 2, 538: 2, 606: 2}  # 第二頁是 interactive.html 裡的互動演練
 
 # 插入簡報的內容頁沒有頁首小標：依單元補上
 EYEBROWS = [
@@ -175,10 +179,11 @@ EYEBROWS = [
     (402, 406, "第六部份｜Gemini 搜索與 Deep Research"), (408, 411, "第六部份｜Gemini 生圖"),
     (413, 418, "第六部份｜Gemini Canvas"), (420, 425, "第六部份｜Gemini Notebook"),
     (427, 435, "第六部份｜Gemini Notebook 職場實戰"), (437, 440, "第六部份｜Gemini × Gemini Notebook 市場研究"),
+    (602, 607, "第七部份｜單元六｜Claude Skills"),
 ]
 
 # 個別頁的放大上限（1.35 是預設；字被嫌太大的頁壓低）
-TMAX = {89: 0.7, 96: 0.65, 101: 0.5, 422: 0, 429: 0, 433: 0, 435: 0.3, 508: 0.55, 439.1: 0.6}
+TMAX = {89: 0.7, 96: 0.65, 101: 0.5, 422: 0, 429: 0, 433: 0, 435: 0.3, 508: 0.55, 439.1: 0.6, 606.1: 0, 605: 0.3}
 
 CREAM, AMBER = "#F5F2EC", "#F0A35E"
 
@@ -211,8 +216,8 @@ def apply(i, els, h):
 
     if i in DIVIDERS:
         divider(els, *DIVIDERS[i])
-    elif 300 <= i < 600:  # 插入的三份簡報的內容頁
-        if 300 <= i < 500:
+    elif 300 <= i < 700:  # 插入的四份簡報的內容頁
+        if 300 <= i < 500 or i >= 600:
             restyle(els, BLUE_MAP)
             # 整頁的背景圖／底色、頁首的整幅裝飾橫幅圖
             els[:] = [e for e in els if "paras" in e or not (e["w"] >= 1200 and (e["h"] >= 680 or (e["tag"] == "pic" and e["y"] <= 0)))]
@@ -233,7 +238,7 @@ def apply(i, els, h):
             for e in els:
                 if e["role"] != "eyebrow":
                     e["y"] -= dy
-        if 300 <= i < 500:
+        if 300 <= i < 500 or i >= 600:
             for r in t["paras"][0]["runs"]:  # 標題改成主簡報的深藍襯線體
                 r.update(color=NAVY, serif=True, z=40.0, b=True)
             t["h"] = 51
@@ -245,7 +250,7 @@ def apply(i, els, h):
             els.insert(0, ey)
         elif 500 <= i < 600:
             unit = {512: "單元一｜Claude AI 核心功能", 523: "單元三｜模型與方案", 524: "單元三｜模型與方案", 525: "單元三｜模型與方案",
-                    526: "單元三｜模型與方案", 527: "單元三｜模型與方案", 538: "單元六｜使用注意事項", 539: "單元六｜使用注意事項"}
+                    526: "單元三｜模型與方案", 527: "單元三｜模型與方案", 537: "單元七", 538: "單元七｜使用注意事項", 539: "單元七｜使用注意事項"}
             if i in unit:  # 原本是描述句的頁首小標，改成單元名稱，跟其他頁一致
                 h.set_text(ey["paras"][0], unit[i])
             for para in ey["paras"]:
@@ -460,6 +465,20 @@ def apply(i, els, h):
                 r["z"] = 20.0
         for ic, y in zip(icons, (256, 482)):
             ic["y"] = y
+    if i == 602:  # 第二個標題改成副標（橘色、26px）
+        sub = one(r"^一個 Claude Skill 的聘書")
+        sub["h"] = 34
+        for r in runs_of(sub):
+            r.update(z=26.0, color="#A3500C", serif=False)
+    if i == 606:  # 詢價單整理小幫手：兩欄文字都偏多，縮小字級才放得進卡片；卡片底部收回版面內
+        for e in els:
+            if "paras" in e and not e["role"] and e["h"] > 100:
+                for para in e["paras"]:
+                    para["lh"] = 27
+                for r in runs_of(e):
+                    r["z"] = 18.5
+            if not e["role"] and e["h"] > 250:
+                e["h"] = min(e["h"], 700 - e["y"])
     if i == 508:  # 擴充功能：三張卡片的「應用情境」對齊同一高度
         for e in els:
             if e.get("fill") == "#EFE3D3" and e["w"] < 400:

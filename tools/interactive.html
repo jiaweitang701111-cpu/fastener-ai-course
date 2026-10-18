@@ -320,7 +320,7 @@
 <!--@538.2-->
 <section class="s ix" id="ex-safe">
 <div class="ix-wrap">
-  <div class="ix-ey">第七部份｜單元六 使用注意事項 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
+  <div class="ix-ey">第七部份｜單元七 使用注意事項 <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
   <h2 class="ix-h">演練：這 10 項內容能不能貼進 Claude？</h2>
   <div class="ix-body">
     <div class="cl-top">
@@ -334,6 +334,40 @@
       </div>
     </div>
     <div class="cl-list" aria-label="10 項內容分類"></div>
+  </div>
+</div>
+</section>
+
+<!--@606.2-->
+<section class="s ix" id="ex-skill">
+<div class="ix-wrap">
+  <div class="ix-ey">第七部份｜單元六｜Claude Skills <span class="live">互動</span><button class="qrbtn">📱 手機掃碼一起做</button></div>
+  <h2 class="ix-h">演練：寫一段給 Skill Creator 的提示詞，建你自己的小幫手</h2>
+  <div class="ix-body">
+    <div class="pb-grid">
+      <div class="card pb-form">
+        <div class="lab">填好四格，右側即時產生提示詞</div>
+        <label class="fld"><span>① 小幫手名稱</span><input data-f="name" placeholder="例如：詢價單整理小幫手" autocomplete="off"></label>
+        <div class="chips" data-for="name"><button>詢價單整理小幫手</button><button>報帳小幫手</button><button>品檢報告小幫手</button><button>出貨文件小幫手</button></div>
+        <label class="fld"><span>② 我的工作場景 <small>（會上傳什麼）</small></span><input data-f="scene" placeholder="例如：客戶的詢價 Email、PDF 或 Excel，內容是各種螺栓、螺帽的詢價" autocomplete="off"></label>
+        <label class="fld"><span>③ 要它做什麼</span><input data-f="task" placeholder="例如：辨識每一筆詢價項目，整理成表格" autocomplete="off"></label>
+        <label class="fld"><span>④ 一定要有的欄位 <small>（用、隔開）</small></span><input data-f="cols" placeholder="例如：品名、規格、材質、數量、交期、客戶名稱" autocomplete="off"></label>
+        <div class="fld"><span>輸出格式</span>
+          <div class="chips" data-pick="fmt"><button class="on">Excel 檔</button><button>Markdown 表格</button><button>Word 報告</button></div>
+        </div>
+        <div class="foot">
+          <button class="btn ghost sm" data-act="example">帶入扣件範例</button>
+          <button class="btn ghost sm" data-act="clear">清空</button>
+        </div>
+      </div>
+      <div class="pb-right">
+        <div class="promptbox">
+          <div class="lab">丟給 Skill Creator 的提示詞 <button class="btn sm" data-copy="main">複製</button><a class="btn sm" href="https://claude.ai/" target="_blank" rel="noopener" style="text-decoration:none">開啟 Claude ↗</a></div>
+          <p class="out" data-out="main" style="font-size:19.5px;line-height:30px"></p>
+        </div>
+        <div class="card pb-note1"><span class="lab">怎麼用</span>Claude 網頁版 → Customize → Create new skills → 開啟 Skill Creator，貼上提示詞。一個 Skill 就是一件事的 SOP，先從這個月重複做了三次以上的那件事開始；流程改了記得回來更新。</div>
+      </div>
+    </div>
   </div>
 </div>
 </section>

@@ -813,6 +813,13 @@ builder('ex-cowork',(v,m)=>({
     +'請依「簡報工作區」資料夾裡的參考資料、數據與公司 Logo，製作一份 '+m(v.pages,'＿＿')+' 頁、可直接在 PowerPoint 編輯的簡報（.pptx）。\n主題：'+m(v.topic,'＿＿＿＿')+'\n目標對象：'+m(v.aud,'＿＿')+'\n視覺風格：'+m(v.style,'＿＿＿＿')+'\n最終目的：'+m(v.goal,'＿＿')+'\n完成後把檔案存在同一個資料夾，並列出每一頁的標題讓我確認。'}),
   {pages:'20',topic:'2026 年度品質改善成果',aud:'經營層',style:'深藍與橘色、使用公司 Logo、字體清楚',goal:'年度報告'});
 
+builder('ex-skill',(v,m)=>{
+  const cols=v.cols?v.cols.split(/[、,，;；\s]+/).filter(Boolean):[];
+  return {main:'用 Skill Creator 幫我建一個『'+m(v.name,'＿＿小幫手')+'』的 Skill。\n我的工作場景：'+m(v.scene,'（我會上傳什麼）')+'。\n你的任務：'+m(v.task,'（要它做什麼）')+'。請務必提取以下欄位：\n'
+    +(cols.length?cols.map(c=>'・<b>'+esc(c)+'</b>').join('\n'):'<u>・（欄位一）\n・（欄位二）</u>')
+    +'\n輸出格式：'+m(v.fmt,'Excel 檔')+'，欄位順序照上面排列；辨識不出來的欄位標示「待確認」，不要自行猜測。\n觸發時機：當我上傳這類檔案並說「整理」時自動使用這個 Skill。'};
+},{name:'詢價單整理小幫手',scene:'客戶的詢價 Email、PDF 或 Excel，內容是各種螺栓、螺帽與特殊扣件的詢價',task:'辨識每一筆詢價項目，換算單位後整理成表格，交給採購與生管估價',cols:'客戶名稱、品名、規格、材質、表面處理、數量、交期、備註'});
+
 /* ── 啟動 ── */
 const q=new URLSearchParams(location.search);
 go((+location.hash.slice(1)||1)-1,true);
