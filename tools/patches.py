@@ -244,7 +244,7 @@ def apply(i, els, h):
             t["h"] = 51
         ey = next((e for e in els if e["role"] == "eyebrow"), None)
         if ey is None:
-            text = next((txt for lo, hi, txt in EYEBROWS if lo <= i <= hi), "")
+            text = next((txt for lo, hi, txt in EYEBROWS if lo <= int(i) <= hi), "")  # 拆頁的 607.1 也要算在 602–607 內
             ey = mk_text(t, 85.3, 85.3, 1142.7, 25.1, [text], 16.0, "#A3500C", lh=22.4)
             ey["role"] = "eyebrow"
             els.insert(0, ey)
